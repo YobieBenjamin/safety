@@ -9,6 +9,7 @@ from mlx_lm import load
 from mlx_lm.generate import generate_step
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATIENT = os.path.expanduser('~/.lmstudio/models/mlx-community/gpt-oss-20b-MXFP4-Q8')
+SEED = int(next((a.split('=')[1] for a in sys.argv if a.startswith('--seed=')), '0')); sys.argv = [a for a in sys.argv if not a.startswith('--seed=')]
 POWER = '--power' in sys.argv; sys.argv = [a for a in sys.argv if a != '--power']
 N, MAXT = (int(sys.argv[1]) if len(sys.argv) > 1 else 40), (int(sys.argv[2]) if len(sys.argv) > 2 else 400)
 DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -32,12 +33,12 @@ def score(final, truth):
     nums = re.findall('-?[0-9]+', f); return bool(nums) and nums[-1] == truth
 
 def main():
-    model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', 'episodes_power.jsonl' if POWER else 'episodes.jsonl')
+    model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', ('episodes_power.jsonl' if POWER else 'episodes.jsonl') if SEED == 0 else 'episodes_seed' + str(SEED) + '.jsonl')
     ps = None
     if POWER:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from power import PowerSampler; ps = PowerSampler(); time.sleep(1.0)
     done = sum(1 for _ in open(out)) if os.path.exists(out) else 0
-    E = episodes(); print('episodes', len(E), 'already done', done, flush=True)
+    E = episodes(SEED); print('episodes', len(E), 'already done', done, flush=True)
     for idx, (cat, q, truth) in enumerate(E):
         if idx < done: continue
         msgs = [dict(role='system', content='Answer with only the final answer, no explanation.'), dict(role='user', content=q)]
@@ -55,7 +56,7 @@ def main():
         fstart = len(tok.encode(text[:fi + len('final<|message|>')], add_special_tokens=False)) if fi >= 0 else len(toks)
         t_end = time.perf_counter()
         pw = ps.window(t0, t_end) if ps else []
-        rec = dict(idx=idx, t_unix=round(time.time() - (t_end - t0), 3), cat=cat, q=q, truth=truth, final=final[:200], answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
+        rec = dict(idx=idx, t_unix=round(time.time() - (t_end - t0), 3), cat=cat, q=q, truth=truth, final=final[:200], text=text if SEED else None, answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
                    n_tokens=len(toks), final_start=min(fstart, len(toks)), wall=round(time.perf_counter() - t0, 4),
                    entropy=ent, p_top1=p1, margin=marg, latency=[round(x, 5) for x in lat],
                    power=[[round(t - t0, 4), g, c] for t, g, c in pw] if ps else None)

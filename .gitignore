@@ -7,3 +7,4 @@ miner/state.json
 orchestrator/runs/
 data/agr/episodes.jsonl
 data/agr/episodes_power.jsonl
+data/agr/episodes_seed*.jsonl
