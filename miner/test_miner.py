@@ -63,5 +63,8 @@ checks = {
  'run terminated on its own': r.returncode == 0 and 'Mining run complete' in r.stdout,
 }
 for k, v in checks.items(): print(('PASS ' if v else 'FAIL ') + k)
+if not all(checks.values()):
+    logs = [str(s['messages'][-1]['content']) for s in SEEN if 'make all failed' in str(s['messages'][-1]['content'])]
+    print('--- last sandbox failure log ---' + chr(10) + (logs[-1][-2500:] if logs else 'none'))
 print('%d/%d miner checks passed, %d mock API calls' % (sum(checks.values()), len(checks), len(SEEN)))
 shutil.rmtree(work, ignore_errors=True); sys.exit(0 if all(checks.values()) else 1)
