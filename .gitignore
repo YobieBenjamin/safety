@@ -1,0 +1,5 @@
+*.so
+__pycache__/
+miner/sandbox/
+miner/state.json
+.env
