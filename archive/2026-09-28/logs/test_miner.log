@@ -1,0 +1,20 @@
+YB-0003: SKIPPED (score 2) mock low | used today: 250/1,000,000
+YB-0004: PASS - repaired (750 tokens) | used today: 1,000/1,000,000
+YB-0005: PASS - mock pass (500 tokens) | used today: 1,500/1,000,000
+YB-0006: PASS - mock pass (500 tokens) | used today: 2,000/1,000,000
+YB-0007: PASS - mock pass (500 tokens) | used today: 2,500/1,000,000
+YB-0008: PASS - mock pass (500 tokens) | used today: 3,250/1,000,000
+YB-0009: PASS - mock pass (500 tokens) | used today: 3,750/1,000,000
+Mining run complete. Weighted tokens used today: 3,750; raw usage: {'input_tokens': 1500, 'output_tokens': 750, 'cache_read_input_tokens': 15000, 'cache_creation_input_tokens': 0}
+ 
+PASS triage skipped low scorer (YB-0003)
+PASS broken build repaired with patch-only resend (YB-0004)
+PASS repair request carried only the log tail + patch instruction
+PASS recursive proposals appended, capped at 2
+PASS proposed hypotheses were mined too
+PASS system prompt cached with 1h TTL
+PASS conversation auto-cache on build calls
+PASS triage uses cheap model, no cache overhead
+PASS budget counts cache reads at 0.1x
+PASS run terminated on its own
+10/10 miner checks passed, 15 mock API calls

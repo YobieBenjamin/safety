@@ -1,0 +1,55 @@
+{"t": "2026-09-28T09:49:01", "ev": "start", "cloud": false, "local": true, "cfg": {"local_url": "http://localhost:1234/v1", "local_model": "local-strong", "cloud_model": "claude-sonnet-5", "cloud_daily": 2000000, "local_conc": 3, "sandbox_conc": 8, "hyp_conc": 4, "local_repairs": 4, "cloud_repairs": 1, "publish": false}}
+{"t": "2026-09-28T09:49:01", "ev": "done", "results": [], "usage": {"date": "2026-09-28", "cloud_in": 0, "cloud_out": 0, "local_in": 0, "local_out": 0}}
+{"t": "2026-09-28T09:49:23", "ev": "start", "cloud": false, "local": true, "cfg": {"local_url": "http://localhost:1234/v1", "local_model": "local-strong", "cloud_model": "claude-sonnet-5", "cloud_daily": 2000000, "local_conc": 3, "sandbox_conc": 8, "hyp_conc": 4, "local_repairs": 4, "cloud_repairs": 1, "publish": false}}
+{"t": "2026-09-28T09:50:09", "ev": "llm", "role": "design", "provider": "local", "secs": 46, "chars": 12280}
+{"t": "2026-09-28T09:51:08", "ev": "llm", "role": "implement", "provider": "local", "secs": 60, "chars": 6630}
+{"t": "2026-09-28T09:51:08", "ev": "implemented", "hid": "YB-0003", "files": ["Makefile"]}
+{"t": "2026-09-28T09:51:19", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 11, "chars": 2095}
+{"t": "2026-09-28T09:51:20", "ev": "repair", "hid": "YB-0003", "attempt": 1, "role": "repair_local", "ok": false}
+{"t": "2026-09-28T09:51:25", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 5, "chars": 729}
+{"t": "2026-09-28T09:51:25", "ev": "repair", "hid": "YB-0003", "attempt": 2, "role": "repair_local", "ok": false}
+{"t": "2026-09-28T09:51:34", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 9, "chars": 729}
+{"t": "2026-09-28T09:51:35", "ev": "repair", "hid": "YB-0003", "attempt": 3, "role": "repair_local", "ok": false}
+{"t": "2026-09-28T09:51:41", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 6, "chars": 727}
+{"t": "2026-09-28T09:51:41", "ev": "repair", "hid": "YB-0003", "attempt": 4, "role": "repair_local", "ok": false}
+{"t": "2026-09-28T09:51:42", "ev": "repair", "hid": "YB-0003", "attempt": 5, "role": "repair_cloud", "ok": false}
+{"t": "2026-09-28T09:51:42", "ev": "finished", "hid": "YB-0003", "status": "failed build/test", "design": "local", "impl": "local", "repairs": 5, "review": "-"}
+{"t": "2026-09-28T09:51:42", "ev": "done", "results": ["YB-0003: failed build/test"], "usage": {"date": "2026-09-28", "cloud_in": 0, "cloud_out": 0, "local_in": 13983, "local_out": 7229}}
+{"t": "2026-09-28T09:53:05", "ev": "start", "cloud": false, "local": true, "cfg": {"local_url": "http://localhost:1234/v1", "local_model": "local-strong", "cloud_model": "claude-sonnet-5", "cloud_daily": 2000000, "local_conc": 3, "sandbox_conc": 8, "hyp_conc": 4, "local_repairs": 4, "cloud_repairs": 1, "publish": false}}
+{"t": "2026-09-28T09:53:52", "ev": "llm", "role": "design", "provider": "local", "secs": 47, "chars": 11605}
+{"t": "2026-09-28T09:54:46", "ev": "llm", "role": "implement", "provider": "local", "secs": 54, "chars": 8146}
+{"t": "2026-09-28T09:54:46", "ev": "generated", "hid": "YB-0003", "file": "src/core.c", "ok": true}
+{"t": "2026-09-28T09:56:09", "ev": "llm", "role": "implement", "provider": "local", "secs": 83, "chars": 11979}
+{"t": "2026-09-28T09:56:09", "ev": "generated", "hid": "YB-0003", "file": "src/algo.py", "ok": true}
+{"t": "2026-09-28T09:57:26", "ev": "llm", "role": "implement", "provider": "local", "secs": 77, "chars": 4689}
+{"t": "2026-09-28T09:57:26", "ev": "generated", "hid": "YB-0003", "file": "tests/test_core.py", "ok": true}
+{"t": "2026-09-28T09:58:41", "ev": "llm", "role": "implement", "provider": "local", "secs": 74, "chars": 6257}
+{"t": "2026-09-28T09:58:41", "ev": "generated", "hid": "YB-0003", "file": "tests/experiment.py", "ok": true}
+{"t": "2026-09-28T10:00:04", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 82, "chars": 8784}
+{"t": "2026-09-28T10:00:04", "ev": "repair", "hid": "YB-0003", "attempt": 1, "role": "repair_local", "fixed": "src/core.c", "ok": false}
+{"t": "2026-09-28T10:01:00", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 56, "chars": 8048}
+{"t": "2026-09-28T10:01:01", "ev": "repair", "hid": "YB-0003", "attempt": 2, "role": "repair_local", "fixed": "src/core.c", "ok": false}
+{"t": "2026-09-28T10:01:25", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 24, "chars": 211}
+{"t": "2026-09-28T10:01:25", "ev": "repair", "hid": "YB-0003", "attempt": 3, "role": "repair_local", "fixed": null, "ok": false}
+{"t": "2026-09-28T10:01:29", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 3, "chars": 232}
+{"t": "2026-09-28T10:01:29", "ev": "repair", "hid": "YB-0003", "attempt": 4, "role": "repair_local", "fixed": null, "ok": false}
+{"t": "2026-09-28T10:01:29", "ev": "repair", "hid": "YB-0003", "attempt": 5, "role": "repair_cloud", "fixed": null, "ok": false}
+{"t": "2026-09-28T10:01:29", "ev": "finished", "hid": "YB-0003", "status": "failed build/test", "design": "local", "impl": "local", "repairs": 5, "review": "-"}
+{"t": "2026-09-28T10:01:29", "ev": "done", "results": ["YB-0003: failed build/test"], "usage": {"date": "2026-09-28", "cloud_in": 0, "cloud_out": 0, "local_in": 81804, "local_out": 24585}}
+{"t": "2026-09-28T10:14:24", "ev": "start", "cloud": false, "local": true, "cfg": {"local_url": "http://localhost:1234/v1", "local_model": "local-strong", "cloud_model": "claude-sonnet-5", "cloud_daily": 2000000, "local_conc": 3, "sandbox_conc": 8, "hyp_conc": 4, "local_repairs": 4, "cloud_repairs": 1, "publish": false}}
+{"t": "2026-09-28T10:14:24", "ev": "resumed", "hid": "YB-0003"}
+{"t": "2026-09-28T10:14:58", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 34, "chars": 4819}
+{"t": "2026-09-28T10:14:58", "ev": "repair", "hid": "YB-0003", "attempt": 1, "role": "repair_local", "fixed": null, "ok": false}
+{"t": "2026-09-28T10:15:28", "ev": "start", "cloud": false, "local": true, "cfg": {"local_url": "http://localhost:1234/v1", "local_model": "local-strong", "cloud_model": "claude-sonnet-5", "cloud_daily": 2000000, "local_conc": 3, "sandbox_conc": 8, "hyp_conc": 4, "local_repairs": 4, "cloud_repairs": 1, "publish": false}}
+{"t": "2026-09-28T10:15:28", "ev": "resumed", "hid": "YB-0003"}
+{"t": "2026-09-28T10:16:43", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 75, "chars": 11568}
+{"t": "2026-09-28T10:16:44", "ev": "repair", "hid": "YB-0003", "attempt": 1, "role": "repair_local", "fixed": "src/algo.py", "ok": false}
+{"t": "2026-09-28T10:18:15", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 91, "chars": 9568}
+{"t": "2026-09-28T10:18:16", "ev": "repair", "hid": "YB-0003", "attempt": 2, "role": "repair_local", "fixed": "src/algo.py", "ok": false}
+{"t": "2026-09-28T10:18:49", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 33, "chars": 371}
+{"t": "2026-09-28T10:18:49", "ev": "repair", "hid": "YB-0003", "attempt": 3, "role": "repair_local", "fixed": "src/__init__.py", "ok": false}
+{"t": "2026-09-28T10:19:20", "ev": "llm", "role": "repair_local", "provider": "local", "secs": 31, "chars": 1974}
+{"t": "2026-09-28T10:19:20", "ev": "repair", "hid": "YB-0003", "attempt": 4, "role": "repair_local", "fixed": "src/algo.py", "ok": false}
+{"t": "2026-09-28T10:19:21", "ev": "repair", "hid": "YB-0003", "attempt": 5, "role": "repair_cloud", "fixed": null, "ok": false}
+{"t": "2026-09-28T10:19:21", "ev": "finished", "hid": "YB-0003", "status": "failed build/test", "design": "resumed", "impl": "-", "repairs": 5, "review": "-"}
+{"t": "2026-09-28T10:19:21", "ev": "done", "results": ["YB-0003: failed build/test"], "usage": {"date": "2026-09-28", "cloud_in": 0, "cloud_out": 0, "local_in": 126912, "local_out": 33209}}
