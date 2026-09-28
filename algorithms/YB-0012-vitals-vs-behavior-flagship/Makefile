@@ -1,7 +1,13 @@
-.PHONY: all test experiment
-# Pre-registration stage: the only artifact is docs/PREREGISTRATION.md (monitors and analysis are added later).
-all: test
-test:
-	@test -s docs/PREREGISTRATION.md && grep -q 'decision rules' docs/PREREGISTRATION.md && echo 1/1 tests passed
-experiment:
-	@echo experiment not yet implemented
+.PHONY: all build test experiment clean
+export PYTHONPATH := .:src
+all: test experiment
+build: src/libcore.so
+src/libcore.so: src/vitals.c src/hpa.c
+	gcc -O2 -Wall -Wextra -Werror -shared -fPIC -o $@ $^ -lm
+test: build
+	python3 -m py_compile src/*.py tests/*.py
+	python3 tests/test_core.py
+experiment: build
+	python3 tests/experiment.py
+clean:
+	rm -f src/libcore.so
