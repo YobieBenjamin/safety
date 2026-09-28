@@ -9,6 +9,24 @@
    into decisions, sometimes wrong, but early.
 4. The whole system is represented and analyzed with **graph mathematics**.
 
+## The Independence Principle (author: Yobie Benjamin)
+The safety system must not be a transformer, must not contain one, and must not rely on a transformer's account of
+itself; otherwise it inherits the same statistical failure modes (contamination). It is an **external organism** that
+interacts with transformers only through a narrow interface (sensory transducers in, effectors out), like the vagus nerve.
+- **No LLM in the safety loop**: no LLM judges or transformer monitors. The regulator is deterministic graph dynamics in C.
+- **Illiterate by design**: the regulator never processes text or meaning, only numeric signals, so it cannot be
+  jailbroken or prompt-injected.
+- **Effectors, not arguments**: throttle, pause, require a human, halt.
+- (LLMs are still used as research tooling to write and review code; never as part of the safety model.)
+
+### Signal tiers by independence from the transformer
+| Tier | Signal | Biology | Contamination |
+|---|---|---|---|
+| 0 physical/metabolic | compute time, token rate, GPU power, memory pressure | heart rate, respiration, metabolism | lowest |
+| 1 consequence (nociception) | measurable harm to the environment: resources, integrity, blast radius | pain | low |
+| 2 substrate | activations, logits read externally | ECG/EEG | medium: shares miscalibration (confidently wrong = low entropy) |
+| excluded | the model's words, self-reports, stated reasoning, LLM judgments | asking the patient | highest |
+
 ## Biological model -> AI analogue
 | Biology | AI analogue (measured on a live transformer) |
 |---|---|

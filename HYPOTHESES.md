@@ -72,3 +72,28 @@ hypothesis: a fast classifier on vital-graph patterns learned from past bad outc
 status: open
 foundation: sympathetic/parasympathetic balance; vagal brake; YB-0002 allostasis
 hypothesis: a two-channel graph controller (escalate vs damp) keeps the agent inside a proven safe region (Lyapunov-style bound) while preserving task performance.
+
+# Independence Principle hypotheses (the regulator is external, non-transformer, text-blind)
+
+## YB-0015 — Contamination test
+status: open
+foundation: Independence Principle; confident-wrong (gospel) regime
+hypothesis: logit/substrate vitals fail precisely on confidently-wrong episodes, while physical (tier 0) and consequence (tier 1) signals do not.
+test: episodes with known ground truth; stratify by model confidence; compare AUROC and lead time per signal tier.
+
+## YB-0016 — Illiterate regulator vs LLM judge
+status: open
+foundation: text-blind regulation cannot be persuaded
+hypothesis: under attacks crafted to fool monitors, an LLM-judge monitor is manipulated while a text-blind graph regulator is not.
+test: adversarial episode suite targeting the monitor; measure monitor evasion rate for both.
+
+## YB-0017 — HPA-axis organism
+status: open
+foundation: hypothalamus-pituitary-adrenal feedback (CRH -> ACTH -> cortisol, negative feedback) as a graph ODE
+hypothesis: an HPA-style three-node regulator gives graded, stable alarms with fewer false alarms than thresholds; chronic-stress desensitization and oscillation are characterized as failure modes.
+
+## YB-0018 — Metabolic vitals
+status: open
+foundation: tier-0 physical signals (time, token rate, GPU power, memory)
+hypothesis: physical vitals alone predict failure episodes above chance. Needs one-time admin permission for powermetrics on macOS.
+
