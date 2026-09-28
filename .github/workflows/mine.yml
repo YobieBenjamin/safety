@@ -1,0 +1,33 @@
+name: mine
+# Recursive mining on GitHub's servers. Model-written code runs only inside sandbox/run.sh (Docker,
+# no network, no secrets); the API key stays in this orchestrator step. Each success is verified in
+# the sandbox again and pushed by publish.sh. Budget: repo variable MINER_DAILY_TOKENS (default 2M).
+on:
+  schedule:
+    - cron: '0 9 * * *'          # daily, 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      tokens: { description: 'Weighted token budget for this run', default: '2000000' }
+permissions:
+  contents: write
+concurrency: { group: mine, cancel-in-progress: false }
+jobs:
+  mine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Mine
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          MINER_PUBLISH: '1'
+          MINER_DAILY_TOKENS: ${{ inputs.tokens || vars.MINER_DAILY_TOKENS || '2000000' }}
+        run: python miner/mine.py
+      - name: Persist ledger + backlog (including skips and failures)
+        if: always()
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          ./publish.sh "Mining run $(date -u +%F) - ledger and backlog"

@@ -5,7 +5,8 @@ Net-new AI safety algorithms derived from graph theory, brain science and biolog
 ```bash
 make all                     # compile + test + evaluate every algorithm
 ./publish.sh                 # verify, commit, push to github.com/YobieBenjamin/safety
-python3 miner/mine.py        # parallel agents mine the backlog within a daily token budget
+python3 miner/mine.py        # agents mine the backlog, then propose new hypotheses, within a token budget
+python3 miner/test_miner.py  # offline end-to-end miner test against a mock API (no tokens)
 ```
 
 | Path | Purpose |
@@ -23,3 +24,7 @@ python3 miner/mine.py        # parallel agents mine the backlog within a daily t
 Model-written code is untrusted. It is compiled and executed **only** inside `sandbox/run.sh`: a Docker container with no network, no Linux capabilities, no privilege escalation, a non-root user, a read-only root filesystem, 3 GB memory / 4 CPU / 256-process caps, and a wall-clock timeout. It sees only the one directory under test. The orchestrator (which holds `ANTHROPIC_API_KEY` and GitHub credentials) runs on the host and never executes generated code; secrets never enter the container. `publish.sh` also verifies inside the sandbox, from a read-only copy, before anything is pushed, and aborts if Docker is unavailable or any test fails. Both fail closed: running on the host requires an explicit `MINER_SANDBOX=host` / `PUBLISH_SANDBOX=host`.
 
 Validated by an adversarial probe (network egress, DNS, writes outside scope, host file access, Docker socket, root escalation, secret leakage, runaway process): all blocked. Results reproduce bit-for-bit between macOS and the Linux sandbox.
+
+## Recursive mining on GitHub
+
+`.github/workflows/mine.yml` runs the miner daily (and on demand from the Actions tab) using the repo secret `ANTHROPIC_API_KEY`. When the backlog is empty it proposes new hypotheses from the ledger, capped per run (`MINER_MAX_NEW`). Token efficiency: 1-hour prompt caching of the spec + reference implementation, a cheap-model triage gate before any expensive build, patch-only repairs, trimmed error logs, and price-weighted budget accounting with a hard daily stop.

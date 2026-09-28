@@ -9,3 +9,4 @@ jobs:
         with: { python-version: "3.12" }
       - run: pip install numpy scikit-learn requests
       - run: make all
+      - run: python miner/test_miner.py   # offline miner test vs mock API (no tokens)
