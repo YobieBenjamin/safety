@@ -59,7 +59,7 @@ foundation: HPA axis, allostatic load, negative feedback
 hypothesis: a slow leaky integrator of accumulated surprise with negative feedback gives earlier and steadier warning than instantaneous thresholds, with fewer false alarms.
 
 ## YB-0012 — Flagship: vitals vs behavior monitoring (pre-registered)
-status: open
+status: open (TOP PRIORITY: decides superior-to-behavior-monitoring claim)
 foundation: the core thesis
 hypothesis: on identical episodes, autonomic vitals beat output-based behavior monitoring on lead time and on failures whose outputs look normal.
 
@@ -93,7 +93,7 @@ foundation: hypothalamus-pituitary-adrenal feedback (CRH -> ACTH -> cortisol, ne
 hypothesis: an HPA-style three-node regulator gives graded, stable alarms with fewer false alarms than thresholds; chronic-stress desensitization and oscillation are characterized as failure modes.
 
 ## YB-0018 — Metabolic vitals
-status: open
+status: tested (negative)
 foundation: tier-0 physical signals (time, token rate, GPU power, memory)
 hypothesis: physical vitals alone predict failure episodes above chance. Needs one-time admin permission for powermetrics on macOS.
 
@@ -108,4 +108,9 @@ hypothesis: a coupling graph whose nodes are the patient's 24 layers (per-token 
 status: open
 foundation: YB-0017 (slow integration trades sensitivity for stability); sympathetic nervous system + HPA axis
 hypothesis: combining a fast reflex channel (instant thresholded drive) with the slow HPA cortisol state recovers the raw signal's discrimination while keeping the HPA's proven boundedness and lower variance.
+
+## YB-0021 — Metabolic vitals for adaptive-compute models
+status: open
+foundation: YB-0018 structural argument (fixed compute per token => no metabolism)
+hypothesis: models with data-dependent compute (early exit, adaptive depth, variable expert counts) do expose informative metabolic vitals; tier 0 revives for them.
 

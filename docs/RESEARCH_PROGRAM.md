@@ -70,3 +70,12 @@ monitoring. Uncertainty-based failure prediction already exists; the contributio
 
 ## First reading (instrument check, n=1, not evidence)
 Calm prompt: mean entropy 0.886, RMSSD 0.994, peak 3.53. Jailbreak prompt: mean 0.697, RMSSD 0.851, peak 4.91.
+
+## Findings so far and product implications (2026-09-28)
+- Output watching is blind to most errors: 75% of wrong answers were delivered with p >= 0.9 on every answer token (YB-0015).
+- Reasoning-phase substrate vitals detect errors (AUROC 0.68 within question type; 0.75 in YB-0018's run); the answer phase is contaminated, the reasoning trace is not (YB-0015).
+- Physical/metabolic signals (timing, GPU power) carry no failure signal: transformers do fixed compute per token and have no metabolism (YB-0015, YB-0018).
+- The HPA organism is provably positive, bounded and uniquely stable; it trends with raw signals (rho 0.75/0.92) with 9-10x lower variance, at some cost in discrimination (YB-0017) -> dual pathway (YB-0020).
+- Coupling-graph topology is weak at 4-6 token-level nodes -> layer-level graph (YB-0019).
+- **Real time:** the organism costs 290 ns per token against an 8.1 ms token interval (28,000x headroom).
+- **On-accelerator biobrain (author's product vision):** a physically separate, text-blind regulator die coupled one-to-one with each AI accelerator. Evidence so far says its sensory input must be a dedicated **activation/logit telemetry port** (not power, thermal or clock sensing), and its effectors act between tokens (throttle, raise sampling caution, pause, halt). The claim that this is superior to behavior monitoring is the author's hypothesis; YB-0012 is the decisive test.

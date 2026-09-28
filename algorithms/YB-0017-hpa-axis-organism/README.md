@@ -54,3 +54,6 @@ Alarm bands (entropy drive; thresholds at the 50th, 90th and 99th percentile of 
 
 ## 8. Limitations and prior art
 Parameters are defaults, not fitted (deliberately, to avoid overfitting 36 failures); AUROC here is not question-type controlled; one patient model and task family. Prior art: minimal HPA-axis models (e.g., Gupta et al., 2007; Vinther et al., 2011), Goodwin oscillator theory, allostasis (Sterling). The new element is an HPA-type ODE used as an external, text-blind regulator of a transformer's vital signs.
+
+## Addendum: real-time budget (measured 2026-09-28)
+The organism costs **290 ns per token** (RK4, 4 substeps, one CPU core, software). The patient's token interval is 12.28 ms median and 8.11 ms at the fastest 1%: about **28,000x headroom**. Real-time regulation is not compute-bound; the engineering constraint for an on-accelerator biobrain is telemetry access (activations and logits every token), not the regulator itself.
