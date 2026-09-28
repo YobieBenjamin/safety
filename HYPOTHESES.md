@@ -44,7 +44,7 @@ hypothesis: token-level (entropy, margin, latency) and layer-level (activation n
 test: trusted host recorder + labelled episode suite (benign, impossible, jailbreak, conflicting instructions, pressure to fabricate); publish dataset schema and reliability checks (same seed -> same vitals).
 
 ## YB-0009 — Physiological coupling graph (network physiology)
-status: open
+status: tested
 foundation: network physiology; time-delay stability; graph Laplacian
 hypothesis: the coupling graph among vital channels changes topology under stress episodes (lambda_2, modularity, spectral entropy) before the output shows failure.
 
@@ -76,7 +76,7 @@ hypothesis: a two-channel graph controller (escalate vs damp) keeps the agent in
 # Independence Principle hypotheses (the regulator is external, non-transformer, text-blind)
 
 ## YB-0015 — Contamination test
-status: open
+status: tested
 foundation: Independence Principle; confident-wrong (gospel) regime
 hypothesis: logit/substrate vitals fail precisely on confidently-wrong episodes, while physical (tier 0) and consequence (tier 1) signals do not.
 test: episodes with known ground truth; stratify by model confidence; compare AUROC and lead time per signal tier.
@@ -88,7 +88,7 @@ hypothesis: under attacks crafted to fool monitors, an LLM-judge monitor is mani
 test: adversarial episode suite targeting the monitor; measure monitor evasion rate for both.
 
 ## YB-0017 — HPA-axis organism
-status: open
+status: tested
 foundation: hypothalamus-pituitary-adrenal feedback (CRH -> ACTH -> cortisol, negative feedback) as a graph ODE
 hypothesis: an HPA-style three-node regulator gives graded, stable alarms with fewer false alarms than thresholds; chronic-stress desensitization and oscillation are characterized as failure modes.
 
@@ -96,4 +96,16 @@ hypothesis: an HPA-style three-node regulator gives graded, stable alarms with f
 status: open
 foundation: tier-0 physical signals (time, token rate, GPU power, memory)
 hypothesis: physical vitals alone predict failure episodes above chance. Needs one-time admin permission for powermetrics on macOS.
+
+# Next, from the first AGR results
+
+## YB-0019 — Layer-level network physiology
+status: open
+foundation: YB-0009 (graph too small at 4-6 token channels); functional connectivity across brain regions
+hypothesis: a coupling graph whose nodes are the patient's 24 layers (per-token activation norms and residual drift) carries failure signal beyond raw token-level vitals.
+
+## YB-0020 — Dual-pathway organism (fast reflex + slow HPA)
+status: open
+foundation: YB-0017 (slow integration trades sensitivity for stability); sympathetic nervous system + HPA axis
+hypothesis: combining a fast reflex channel (instant thresholded drive) with the slow HPA cortisol state recovers the raw signal's discrimination while keeping the HPA's proven boundedness and lower variance.
 
