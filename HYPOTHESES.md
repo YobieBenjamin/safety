@@ -59,7 +59,7 @@ foundation: HPA axis, allostatic load, negative feedback
 hypothesis: a slow leaky integrator of accumulated surprise with negative feedback gives earlier and steadier warning than instantaneous thresholds, with fewer false alarms.
 
 ## YB-0012 — Flagship: vitals vs behavior monitoring (pre-registered)
-status: open (TOP PRIORITY: decides superior-to-behavior-monitoring claim)
+status: tested (H1 inferior on verifiable tasks; H2 earliness confirmed)
 foundation: the core thesis
 hypothesis: on identical episodes, autonomic vitals beat output-based behavior monitoring on lead time and on failures whose outputs look normal.
 
@@ -113,4 +113,15 @@ hypothesis: combining a fast reflex channel (instant thresholded drive) with the
 status: open
 foundation: YB-0018 structural argument (fixed compute per token => no metabolism)
 hypothesis: models with data-dependent compute (early exit, adaptive depth, variable expert counts) do expose informative metabolic vitals; tier 0 revives for them.
+
+## YB-0022 — Flagship on non-verifiable, open-ended and agentic tasks
+status: open (next decisive test)
+foundation: YB-0012 bias: every question had one recomputable answer, the best case for self-consistency and verifiers
+hypothesis: on tasks whose answers cannot be recomputed and where agreeing with yourself is ill-defined (open-ended reasoning, multi-step agent actions, deception-inducing pressure), the organism's accuracy gap to behavior monitors shrinks or reverses.
+test: new pre-registration committed before data; ground truth from outcomes that are checkable after the fact (task success, rule violations in a sandboxed agent environment).
+
+## YB-0023 — Cost- and latency-normalized monitoring
+status: open
+foundation: YB-0012: the organism costs 290 ns per token and alarms 4.5 s before the answer; behavior monitors need extra generations or a larger model and a finished answer
+hypothesis: at equal compute or equal latency budget (e.g., alarm required before the answer is emitted), the organism dominates behavior monitors. Must be pre-registered with the budget defined in advance.
 
