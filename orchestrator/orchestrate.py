@@ -24,12 +24,13 @@ CFG = dict(local_url=E('LOCAL_URL', 'http://localhost:1234/v1'), local_model=E('
 HYP, LEDGER = os.path.join(ROOT, 'HYPOTHESES.md'), os.path.join(ROOT, 'LEDGER.md')
 RUNS, WORK = os.path.join(ROOT, 'orchestrator', 'runs'), os.path.join(ROOT, 'miner', 'sandbox')
 REF = os.path.join(ROOT, 'algorithms', 'YB-0002-bounded-homeostasis-wrapper')
+os.makedirs(RUNS, exist_ok=True); os.makedirs(WORK, exist_ok=True)
 LOCK, PUBLOCK = threading.RLock(), threading.Lock()
 LOCAL_SEM, SANDBOX_SEM = threading.Semaphore(CFG['local_conc']), threading.Semaphore(CFG['sandbox_conc'])
 
 
 def cloud_key():
-    if E('LOCAL_ONLY') == '1': return None
+    if E('LOCAL_ONLY') == '1' or E('USE_API') != '1': return None   # paid API is opt-in (budget: subscription only)
     if E('ANTHROPIC_API_KEY'): return E('ANTHROPIC_API_KEY')
     r = subprocess.run(['security', 'find-generic-password', '-s', 'anthropic-api-key', '-w'], capture_output=True, text=True)
     return r.stdout.strip() or None
@@ -56,8 +57,8 @@ def usage(add=None):
         f, today = os.path.join(RUNS, 'usage.json'), datetime.date.today().isoformat()
         try: u = json.load(open(f))
         except Exception: u = {}
-        if u.get('date') != today: u = dict(date=today, cloud_in=0, cloud_out=0, local_in=0, local_out=0)
-        for k, v in (add or {}).items(): u[k] += v
+        if u.get('date') != today: u = dict(date=today, cloud_in=0, cloud_out=0, local_in=0, local_out=0, cc_calls=0, cc_in=0, cc_out=0)
+        for k, v in (add or {}).items(): u[k] = u.get(k, 0) + v
         json.dump(u, open(f, 'w'), indent=1)
         return u
 
@@ -88,15 +89,49 @@ def call_cloud(system, user, max_tokens):
     return ''.join(b.get('text', '') for b in d['content'] if b['type'] == 'text')
 
 
-ROUTES = dict(design=['cloud', 'local'], implement_core=['cloud', 'local'], implement=['local', 'cloud'], repair_local=['local'],
-              repair_cloud=['cloud'], review=['cloud', 'local'], fix_docs=['local', 'cloud'])
+CC = dict(bin=shutil.which('claude') or os.path.expanduser('~/.nvm/versions/node/v22.17.1/bin/claude'),
+          model=E('CC_MODEL', 'sonnet'), daily=int(E('CC_DAILY_CALLS', '3')), window=E('CC_WINDOW', '1-6'),
+          anytime=E('CC_ANYTIME') == '1', disabled=E('LOCAL_ONLY') == '1')
+
+
+def cc_token():
+    if E('CLAUDE_CODE_OAUTH_TOKEN'): return E('CLAUDE_CODE_OAUTH_TOKEN')
+    r = subprocess.run(['security', 'find-generic-password', '-s', 'claude-code-oauth-token', '-w'], capture_output=True, text=True)
+    return r.stdout.strip() or None
+
+
+def cc_available():
+    if CC['disabled'] or not os.path.exists(CC['bin']) or not cc_token(): return False
+    if usage().get('cc_calls', 0) >= CC['daily']: return False
+    lo, hi = (int(x) for x in CC['window'].split('-'))
+    return CC['anytime'] or lo <= datetime.datetime.now().hour < hi
+
+
+def call_claude_code(system, user, max_tokens):
+    """Claude Code headless on the Max subscription (no API credits). Our system prompt replaces the default
+    (avoids ~16.7k tokens of built-in instructions per call); no tools, no MCP."""
+    env = {k: v for k, v in os.environ.items() if k != 'ANTHROPIC_API_KEY'}; env['CLAUDE_CODE_OAUTH_TOKEN'] = cc_token()
+    r = subprocess.run([CC['bin'], '-p', '--output-format', 'json', '--model', CC['model'], '--strict-mcp-config', '--tools', '',
+                        '--system-prompt', system], input=user, capture_output=True, text=True, timeout=900, env=env, cwd='/tmp')
+    try: d = json.loads(r.stdout)
+    except Exception: raise RuntimeError('claude code: ' + (r.stdout + r.stderr)[-200:])
+    u = d.get('usage', {}); usage(dict(cc_calls=1, cc_in=u.get('input_tokens', 0) + u.get('cache_creation_input_tokens', 0) + u.get('cache_read_input_tokens', 0), cc_out=u.get('output_tokens', 0)))
+    if d.get('is_error'):
+        if 'limit' in str(d.get('result', '')).lower(): CC['disabled'] = True; log('cc_limit_reached', msg=str(d.get('result'))[:120])
+        raise RuntimeError('claude code error: ' + str(d.get('result'))[:200])
+    return d.get('result') or ''
+
+
+ROUTES = dict(design=['local', 'cloud'], implement_core=['local', 'cloud'], implement=['local', 'cloud'], repair_local=['local'],
+              repair_cloud=['claude_code', 'cloud'], review=['claude_code', 'cloud', 'local'], fix_docs=['local', 'cloud'])
 
 
 def llm(role, system, user, max_tokens):
     for p in ROUTES[role]:
         if p == 'cloud' and (not KEY or cloud_left() < max_tokens): continue
+        if p == 'claude_code' and not cc_available(): continue
         try:
-            t = time.time(); out = (call_cloud if p == 'cloud' else call_local)(system, user, max_tokens)
+            t = time.time(); out = {'cloud': call_cloud, 'claude_code': call_claude_code, 'local': call_local}[p](system, user, max_tokens)
             log('llm', role=role, provider=p, secs=round(time.time() - t), chars=len(out))
             raw = os.path.join(RUNS, 'raw'); os.makedirs(raw, exist_ok=True)
             open(os.path.join(raw, datetime.datetime.now().strftime('%H%M%S-') + role + '-' + p + '.txt'), 'w').write(out)
@@ -345,8 +380,8 @@ def main():
         sys.exit('Docker sandbox unavailable; refusing to run model-written code.')
     try: post(CFG['local_url'] + '/chat/completions', dict(model=CFG['local_model'], max_tokens=5, messages=[dict(role='user', content='ok')]), {}, 300); local = True
     except Exception: local = False
-    log('start', cloud=bool(KEY), local=local, cfg=CFG)
-    if not (local or KEY): sys.exit('Neither local model nor cloud key available.')
+    log('start', api=bool(KEY), claude_code=cc_available(), local=local, cc_cfg={k: v for k, v in CC.items() if k != 'bin'}, cfg=CFG)
+    if not (local or KEY or cc_available()): sys.exit('No local model, Claude Code or API available.')
     with ThreadPoolExecutor(CFG['hyp_conc']) as ex:
         futs = []
         for _ in range(maxn):
