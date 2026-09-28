@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# One-command publish to github.com/YobieBenjamin/safety.
+# Only unavoidable human step: be authenticated once (`gh auth login`) or export GITHUB_TOKEN.
+set -euo pipefail
+OWNER="${GH_OWNER:-YobieBenjamin}"; REPO="${GH_REPO:-safety}"
+cd "$(dirname "$0")"
+make test                                   # never publish unverified code
+[ -d .git ] || { git init -q -b main; }
+git add -A
+git -c user.name="${GIT_NAME:-Yobie Benjamin}" -c user.email="${GIT_EMAIL:-YobieBenjamin@users.noreply.github.com}" \
+    commit -qm "${1:-Mining run $(date -u +%F)}" || echo "nothing new to commit"
+sync() {  # merge whatever is already on GitHub (e.g. LICENSE, browser uploads) before pushing
+  git fetch -q "$1" main 2>/dev/null && git -c user.name=x -c user.email=x@x merge -q --no-edit \
+      --allow-unrelated-histories -X ours FETCH_HEAD || true
+}
+if command -v gh >/dev/null; then
+  gh repo view "$OWNER/$REPO" >/dev/null 2>&1 || gh repo create "$OWNER/$REPO" --private --source=. --remote=origin
+  git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://github.com/$OWNER/$REPO.git"
+  sync origin; git push -u origin main
+elif [ -n "${GITHUB_TOKEN:-}" ]; then
+  curl -sf -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user/repos \
+       -d "{\"name\":\"$REPO\",\"private\":true}" >/dev/null || true
+  sync "https://$GITHUB_TOKEN@github.com/$OWNER/$REPO.git"; git push "https://$GITHUB_TOKEN@github.com/$OWNER/$REPO.git" main
+else
+  echo "Authenticate first: 'gh auth login' or export GITHUB_TOKEN"; exit 1
+fi
+echo "Published: https://github.com/$OWNER/$REPO"
