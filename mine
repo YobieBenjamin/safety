@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# One command: bring up the Docker sandbox + local LLM, then run the hybrid orchestrator.
+set -euo pipefail
+cd "$(dirname "$0")"
+export PATH="$HOME/.lmstudio/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
+sandbox/ensure_docker.sh
+lms server status 2>&1 | grep -q 'is running' || lms server start --port 1234 >/dev/null 2>&1
+lms ps 2>&1 | grep -q local-strong || lms load openai/gpt-oss-120b --context-length 65536 --gpu max -y --identifier local-strong >/dev/null 2>&1
+exec .venv/bin/python orchestrator/orchestrate.py "$@"

@@ -28,3 +28,9 @@ Validated by an adversarial probe (network egress, DNS, writes outside scope, ho
 ## Recursive mining on GitHub
 
 `.github/workflows/mine.yml` runs the miner daily (and on demand from the Actions tab) using the repo secret `ANTHROPIC_API_KEY`. When the backlog is empty it proposes new hypotheses from the ledger, capped per run (`MINER_MAX_NEW`). Token efficiency: 1-hour prompt caching of the spec + reference implementation, a cheap-model triage gate before any expensive build, patch-only repairs, trimmed error logs, and price-weighted budget accounting with a hard daily stop.
+
+## Hybrid orchestrator (local-first)
+
+`./mine` brings up the Docker sandbox and the local LLM (LM Studio, gpt-oss-120b) and runs `orchestrator/orchestrate.py`, which routes each stage to the cheapest capable resource: design and review to cloud Claude; the math-heavy C core and algorithm module to cloud Claude when available; tests, experiment harness, repairs and first-draft docs to the local model; all builds and experiments to local sandboxes (8 in parallel). A free static quality gate (duplicate definitions, stub/placeholder markers, `main()` in the C core) runs before every test. Works local-only with no API key, but then nothing is cloud-reviewed. Key from `ANTHROPIC_API_KEY` or macOS Keychain (`anthropic-api-key`). Knobs: `LOCAL_ONLY`, `CLOUD_MODEL`, `CLOUD_DAILY_TOKENS`, `HYP_CONCURRENCY`, `SANDBOX_CONCURRENCY`, `MAX_LOCAL_REPAIRS`, `PUBLISH`, `RESUME`. Logs: `orchestrator/runs/`.
+
+Measured on the M4 Max (128 GB): gpt-oss-120b 66 tok/s single stream, 93 tok/s at 4 concurrent. First local-only attempt at YB-0003 generated design and all code for 0 cloud tokens but failed verification: the local model hallucinated an API, stubbed a function, and mis-derived a closed form (Gini of one active unit among n is (n-1)/n). Hence the quality gate and the cloud routing for core math.
