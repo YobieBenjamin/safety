@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Run a make target on algorithm code inside the locked-down sandbox container.
+#   sandbox/run.sh <dir> <target>        dir mounted read-write at /work (miner: keeps docs/results.json)
+#   sandbox/run.sh <dir> <target> --ro  dir mounted read-only, copied to tmpfs, built there (publish check)
+# Lockdown: no network, no capabilities, no privilege escalation, non-root, read-only root fs,
+# memory/CPU/process caps, wall-clock timeout. Only <dir> is visible; no host secrets enter.
+set -euo pipefail
+here="$(cd "$(dirname "$0")" && pwd)"
+dir="$(cd "$1" && pwd)"; target="${2:-test}"; mode="${3:-}"
+tag="safety-sandbox:$(shasum -a 256 "$here/Dockerfile" | cut -c1-12)"
+docker image inspect "$tag" >/dev/null 2>&1 || docker build -q -t "$tag" "$here" >/dev/null
+lock=(--rm --network none --cap-drop ALL --security-opt no-new-privileges --user 10001
+      --read-only --tmpfs /tmp:rw,exec,size=1g --memory "${SANDBOX_MEM:-3g}" --cpus "${SANDBOX_CPUS:-4}"
+      --pids-limit 256)
+tmo="${SANDBOX_TIMEOUT:-1500}"
+if [ "$mode" = --ro ]; then
+  exec docker run "${lock[@]}" -v "$dir":/src:ro "$tag" \
+    sh -c "mkdir /tmp/w && tar -C /src --exclude=./.venv --exclude=./.git --exclude='*.so' --exclude=__pycache__ -cf - . | tar -C /tmp/w -xf - && cd /tmp/w && timeout $tmo make $target"
+else
+  exec docker run "${lock[@]}" -v "$dir":/work "$tag" timeout "$tmo" make "$target"
+fi

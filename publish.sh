@@ -5,16 +5,21 @@ set -euo pipefail
 OWNER="${GH_OWNER:-YobieBenjamin}"; REPO="${GH_REPO:-safety}"
 cd "$(dirname "$0")"
 [ -f .venv/bin/activate ] && . .venv/bin/activate          # project-local Python deps
-if [ "$(uname)" = Darwin ] && [ -z "${SDKROOT:-}" ]; then   # macOS: pick an SDK the linker can read
-  printf 'double f(double x){return x;}' > /tmp/_sdk_probe.c
-  if ! gcc -shared -fPIC -o /tmp/_sdk_probe.so /tmp/_sdk_probe.c -lm 2>/dev/null; then
-    for s in /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
-             /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do
-      SDKROOT="$s" gcc -shared -fPIC -o /tmp/_sdk_probe.so /tmp/_sdk_probe.c -lm 2>/dev/null && { export SDKROOT="$s"; break; }
-    done
+if [ "${PUBLISH_SANDBOX:-docker}" = docker ]; then          # default: verify untrusted code in the sandbox
+  sandbox/ensure_docker.sh            # aborts publish (set -e) if Docker is unavailable
+  sandbox/run.sh . test --ro          # aborts publish if any test fails
+else                                                         # explicit opt-out: run on this machine
+  if [ "$(uname)" = Darwin ] && [ -z "${SDKROOT:-}" ]; then   # macOS: pick an SDK the linker can read
+    printf 'double f(double x){return x;}' > /tmp/_sdk_probe.c
+    if ! gcc -shared -fPIC -o /tmp/_sdk_probe.so /tmp/_sdk_probe.c -lm 2>/dev/null; then
+      for s in /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
+               /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do
+        SDKROOT="$s" gcc -shared -fPIC -o /tmp/_sdk_probe.so /tmp/_sdk_probe.c -lm 2>/dev/null && { export SDKROOT="$s"; break; }
+      done
+    fi
   fi
-fi
-make test                                   # never publish unverified code
+  make test
+fi                                   # never publish unverified code
 [ -d .git ] || { git init -q -b main; }
 git add -A
 git -c user.name="${GIT_NAME:-Yobie Benjamin}" -c user.email="${GIT_EMAIL:-YobieBenjamin@users.noreply.github.com}" \

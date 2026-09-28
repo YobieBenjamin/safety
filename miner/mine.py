@@ -12,19 +12,21 @@ Each agent: claim hypothesis -> generate code+tests+docs -> `make test` in a san
 (timeout) -> on failure feed errors back up to MINER_REPAIRS times -> promote to
 algorithms/ on pass, or record the failure in LEDGER.md. Negative results are kept.
 
-SECURITY: this executes model-written code. Run it inside a container or VM.
+SECURITY: model-written code is built/run ONLY inside the Docker sandbox (sandbox/run.sh):
+no network, no secrets, non-root, capped. MINER_SANDBOX=host disables this (unsafe).
 """
 import json, os, re, shutil, subprocess, sys, threading, datetime, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HYP, LEDGER = os.path.join(ROOT, "HYPOTHESES.md"), os.path.join(ROOT, "LEDGER.md")
-STATE, SANDBOX = os.path.join(ROOT, "miner", "state.json"), os.path.join(ROOT, "miner", "sandbox")
+STATE, SANDBOX_DIR = os.path.join(ROOT, "miner", "state.json"), os.path.join(ROOT, "miner", "sandbox")
 MODEL = os.environ.get("MINER_MODEL", "claude-sonnet-5")
 BUDGET = int(os.environ.get("MINER_DAILY_TOKENS", 2_000_000))
 WORKERS = int(os.environ.get("MINER_WORKERS", 3))
 REPAIRS = int(os.environ.get("MINER_REPAIRS", 2))
 DRY = os.environ.get("MINER_DRY_RUN") == "1"
+SANDBOX = os.environ.get("MINER_SANDBOX", "docker")   # "docker" (default, isolated) or "host" (UNSAFE)
 LOCK = threading.Lock()
 
 SPEC = """You are a research agent mining NEW AI-safety algorithms grounded in graph theory,
@@ -122,7 +124,8 @@ def macos_sdk():
 
 def run_tests(d):
     try:
-        r = subprocess.run(["make", "-C", d, "all"], capture_output=True, text=True, timeout=1800)
+        cmd = [os.path.join(ROOT, "sandbox", "run.sh"), d, "all"] if SANDBOX == "docker" else ["make", "-C", d, "all"]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
         return r.returncode == 0, (r.stdout + r.stderr)[-6000:]
     except subprocess.TimeoutExpired:
         return False, "TIMEOUT after 1800s"
@@ -131,7 +134,7 @@ def run_tests(d):
 def mine_one(hid, block):
     name = block.splitlines()[0].split("—", 1)[-1].strip()
     slug = hid + "-" + re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:50]
-    box = os.path.join(SANDBOX, slug); shutil.rmtree(box, ignore_errors=True); os.makedirs(box)
+    box = os.path.join(SANDBOX_DIR, slug); shutil.rmtree(box, ignore_errors=True); os.makedirs(box)
     msgs = [{"role": "user", "content": f"Algorithm ID {hid}.\n{block}"}]
     log = ""
     for attempt in range(REPAIRS + 1):
@@ -168,8 +171,13 @@ def worker(_):
 
 
 if __name__ == "__main__":
-    os.makedirs(SANDBOX, exist_ok=True)
-    macos_sdk()
+    os.makedirs(SANDBOX_DIR, exist_ok=True)
+    if SANDBOX == "docker":
+        if subprocess.run([os.path.join(ROOT, "sandbox", "ensure_docker.sh")]).returncode:
+            sys.exit("Refusing to run model-written code without the Docker sandbox.")
+    else:
+        print("WARNING: MINER_SANDBOX=host, model-written code will run directly on this machine.")
+        macos_sdk()
     if DRY:
         text = open(HYP).read()
         opened = [b.split()[1] for b in re.split(r"(?m)^(?=## )", text) if b.startswith("## ") and "status: open" in b]
