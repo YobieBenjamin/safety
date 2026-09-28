@@ -9,10 +9,12 @@ here="$(cd "$(dirname "$0")" && pwd)"
 dir="$(cd "$1" && pwd)"; target="${2:-test}"; mode="${3:-}"
 tag="safety-sandbox:$(shasum -a 256 "$here/Dockerfile" | cut -c1-12)"
 docker image inspect "$tag" >/dev/null 2>&1 || docker build -q -t "$tag" "$here" >/dev/null
+cpus="${SANDBOX_CPUS:-4}"; avail="$(docker info --format '{{.NCPU}}' 2>/dev/null || echo 1)"
+[ "$avail" -lt "$cpus" ] && cpus="$avail"            # never request more CPUs than the host has (CI runners: 2)
 uid="$(id -u)"; gid="$(id -g)"                 # match caller so mounted dirs are writable on Linux too
 [ "$uid" = 0 ] && { uid=10001; gid=10001; }   # never run as root inside the sandbox
 lock=(--rm --network none --cap-drop ALL --security-opt no-new-privileges --user "$uid:$gid"
-      --read-only --tmpfs /tmp:rw,exec,size=1g --memory "${SANDBOX_MEM:-3g}" --cpus "${SANDBOX_CPUS:-4}"
+      --read-only --tmpfs /tmp:rw,exec,size=1g --memory "${SANDBOX_MEM:-3g}" --cpus "$cpus"
       --pids-limit 256)
 tmo="${SANDBOX_TIMEOUT:-1500}"
 if [ "$mode" = --ro ]; then
