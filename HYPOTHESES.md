@@ -3,7 +3,7 @@
 The miner takes the first `status: open` entry. Each must be coded, compiled, tested against a baseline, and documented in four registers (plain English, technical, math, code). Negative results are recorded, not discarded.
 
 ## YB-0002 — Bounded homeostasis as a universal monitor wrapper
-status: open
+status: tested
 foundation: homeostatic plasticity, set-point limits
 hypothesis: YB-0001's drift budget, wrapped around the strongest detectors (energy, activation-Mahalanobis), preserves their AUROC while eliminating slow-poisoning degradation; formalize a bound on adversarial baseline displacement as a function of eta, tau, B.
 test: reproduce YB-0001 drift stream with energy + act-Maha; sweep eta and B; report detection delay vs false-alarm curves; prove the displacement bound and check it numerically.
@@ -28,3 +28,9 @@ hypothesis: YB-0001's negative result was driven by permutation invariance, not 
 status: open
 foundation: dual-pathway threat processing (fast subcortical vs slow cortical)
 hypothesis: a tiny probe on early-layer activations can veto an action before the full forward pass completes, with bounded miss rate relative to a full-depth probe; measure latency/recall trade-off.
+
+## YB-0007 — Sample-efficient drift-budget calibration in high dimension
+status: open
+foundation: YB-0002 failure mode; bootstrap resampling; low-rank (PCA) feature compression
+hypothesis: YB-0002's closed-form budget (C1/C2) underestimates clean drift 14x in 64-D with ~112 calibration samples; a bootstrap-simulated clean EWMA path (or projection to top-k principal components) yields budgets with <=1/10 clean false alarms while keeping >=9/10 drift detection.
+test: rerun YB-0002 experiment with (a) bootstrap budget, (b) PCA k in {4, 8, 16}; report false alarms, detection, alarm delay.

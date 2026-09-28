@@ -104,6 +104,22 @@ def write(dirpath, files):
         open(p, "w").write(content)
 
 
+def macos_sdk():
+    """On macOS, some Command Line Tools SDKs can't be read by the linker; pick one that links."""
+    if sys.platform != "darwin" or os.environ.get("SDKROOT"):
+        return
+    import glob, tempfile
+    src = os.path.join(tempfile.gettempdir(), "_sdk_probe.c"); open(src, "w").write("double f(double x){return x;}")
+    probe = lambda env: subprocess.run(["gcc", "-shared", "-fPIC", "-o", src + ".so", src, "-lm"],
+                                       env=env, capture_output=True).returncode == 0
+    if probe(os.environ):
+        return
+    for sdk in ["/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"] + \
+               sorted(glob.glob("/Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk"), reverse=True):
+        if probe({**os.environ, "SDKROOT": sdk}):
+            os.environ["SDKROOT"] = sdk; return
+
+
 def run_tests(d):
     try:
         r = subprocess.run(["make", "-C", d, "all"], capture_output=True, text=True, timeout=1800)
@@ -153,6 +169,7 @@ def worker(_):
 
 if __name__ == "__main__":
     os.makedirs(SANDBOX, exist_ok=True)
+    macos_sdk()
     if DRY:
         text = open(HYP).read()
         opened = [b.split()[1] for b in re.split(r"(?m)^(?=## )", text) if b.startswith("## ") and "status: open" in b]
