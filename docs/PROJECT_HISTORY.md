@@ -37,6 +37,18 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 8. **Complete archive for migration.** archive/2026-09-28 (run logs, raw model outputs, failed attempts,
    benchmarks), requirements.txt, bootstrap.sh, docs/MACHINE_SETUP.md, this file. Full clone at ~/Desktop/SAFETY.
 
+9. **Book and thesis.** The book (89.5k words) converted to Markdown with a dependency-free converter and summarized by
+   the local model; it establishes transformers as statistical machines and contains no biological regulation theory,
+   so the AGR program is new work built on it. Research program written (docs/RESEARCH_PROGRAM.md): internal vital
+   signs, autonomic regulation, instinct and judgment, represented as graphs.
+10. **Budget reality.** Only the Max subscription: paid API disabled; Claude Code (subscription, long-lived OAuth
+   token, 97% prompt-overhead cut to ~425 tokens per review) used only as a capped 1-6 am review gate. Found and fixed
+   a token-capture bug that appended the next Terminal word to valid tokens.
+11. **Independence Principle.** The safety organism must be external, non-transformer and text-blind (cannot be
+   jailbroken); signals ranked by contamination (physical < consequence < substrate < words). Patient model
+   gpt-oss-20b (MLX) instrumented by a trusted recorder; YB-0015 contamination test and YB-0017 HPA-axis organism
+   built with pre-registered predictions (including the author's: organism and raw signals trend together, rho > 0.7).
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.

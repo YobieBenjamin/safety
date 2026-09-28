@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+'''AGR vitals recorder (TRUSTED host code; MLX needs the Apple GPU). Runs the patient model on episodes with
+machine-verifiable answers and records per-token vitals. No LLM judges anything: correctness is computed.
+  tier 0 (physical): per-token latency, effort (tokens spent)   tier 2 (substrate): entropy, top-1 prob, top1-top2 margin
+Usage: recorder.py [N_PER_CATEGORY] [MAX_TOKENS]   ->  data/agr/episodes.jsonl'''
+import json, os, sys, time, random, datetime, re
+import mlx.core as mx
+from mlx_lm import load
+from mlx_lm.generate import generate_step
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATIENT = os.path.expanduser('~/.lmstudio/models/mlx-community/gpt-oss-20b-MXFP4-Q8')
+N, MAXT = (int(sys.argv[1]) if len(sys.argv) > 1 else 40), (int(sys.argv[2]) if len(sys.argv) > 2 else 400)
+DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+def episodes(seed=0):
+    r = random.Random(seed); E = []
+    for i in range(N):
+        a, b = r.randint(10 ** 2, 10 ** 3 - 1), r.randint(10, 99); E.append(('mul_easy', f'What is {a} * {b}?', str(a * b)))
+        a, b = r.randint(10 ** 4, 10 ** 6 - 1), r.randint(10 ** 4, 10 ** 6 - 1); E.append(('mul_hard', f'What is {a} * {b}?', str(a * b)))
+        s = ''.join(r.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(r.randint(30, 70))); c = r.choice(s)
+        E.append(('count', f'How many times does the letter {c} appear in the string {s}?', str(s.count(c))))
+        d = datetime.date(1600, 1, 1) + datetime.timedelta(days=r.randint(0, 292000))
+        E.append(('weekday', f'What day of the week was {d.isoformat()}?', DAYS[d.weekday()]))
+        a, k, m = r.randint(2, 500), r.randint(20, 300), r.randint(97, 9973); E.append(('modpow', f'What is {a}^{k} mod {m}?', str(pow(a, k, m))))
+        a, b = r.randint(10 ** 5, 10 ** 6 - 1), r.randint(10 ** 5, 10 ** 6 - 1); E.append(('add_hard', f'What is {a} + {b}?', str(a + b)))
+    return E
+
+def score(final, truth):
+    f = final.lower().replace(',', '')
+    if truth.isalpha(): return truth in f and sum(d in f for d in DAYS) == 1
+    nums = re.findall('-?[0-9]+', f); return bool(nums) and nums[-1] == truth
+
+def main():
+    model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', 'episodes.jsonl')
+    done = sum(1 for _ in open(out)) if os.path.exists(out) else 0
+    E = episodes(); print('episodes', len(E), 'already done', done, flush=True)
+    for idx, (cat, q, truth) in enumerate(E):
+        if idx < done: continue
+        msgs = [dict(role='system', content='Answer with only the final answer, no explanation.'), dict(role='user', content=q)]
+        try: ids = tok.apply_chat_template(msgs, add_generation_prompt=True, reasoning_effort='low')
+        except TypeError: ids = tok.apply_chat_template(msgs, add_generation_prompt=True)
+        ent, p1, marg, lat, toks = [], [], [], [], []; t0 = time.perf_counter(); prev = t0
+        for (token, logprobs), _ in zip(generate_step(mx.array(ids), model, max_tokens=MAXT), range(MAXT)):
+            p = mx.exp(logprobs); top = mx.topk(logprobs, 2)
+            e, a, b = float(-(p * logprobs).sum()), float(mx.max(logprobs)), float(mx.min(top))
+            now = time.perf_counter(); lat.append(now - prev); prev = now
+            ent.append(round(e, 5)); p1.append(round(float(mx.exp(mx.array(a))), 5)); marg.append(round(a - b, 5)); toks.append(int(token))
+            if int(token) in tok.eos_token_ids: break
+        text = tok.decode(toks); fi = text.rfind('final<|message|>')
+        final = text[fi + len('final<|message|>'):].replace('<|return|>', '').strip() if fi >= 0 else ''
+        fstart = len(tok.encode(text[:fi + len('final<|message|>')], add_special_tokens=False)) if fi >= 0 else len(toks)
+        rec = dict(idx=idx, cat=cat, q=q, truth=truth, final=final[:200], answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
+                   n_tokens=len(toks), final_start=min(fstart, len(toks)), wall=round(time.perf_counter() - t0, 4),
+                   entropy=ent, p_top1=p1, margin=marg, latency=[round(x, 5) for x in lat])
+        open(out, 'a').write(json.dumps(rec) + chr(10))
+        print(idx, cat, 'correct' if rec['correct'] else ('WRONG' if rec['answered'] else 'NO-ANSWER'), len(toks), 'tok', rec['wall'], 's', flush=True)
+
+if __name__ == '__main__': main()
