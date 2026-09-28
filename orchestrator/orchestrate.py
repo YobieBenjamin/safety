@@ -36,6 +36,14 @@ def cloud_key():
 KEY = cloud_key()
 
 
+def workspace_id():
+    """Account-level (non-workspace-scoped) keys must name a workspace. Not a secret; per-machine."""
+    if E('ANTHROPIC_WORKSPACE_ID'): return E('ANTHROPIC_WORKSPACE_ID')
+    r = subprocess.run(['security', 'find-generic-password', '-s', 'anthropic-workspace-id', '-w'], capture_output=True, text=True)
+    return r.stdout.strip() or None
+WORKSPACE = workspace_id()
+
+
 def log(ev, **kw):
     rec = dict(t=datetime.datetime.now().isoformat(timespec='seconds'), ev=ev, **kw)
     with LOCK:
@@ -74,7 +82,8 @@ def call_local(system, user, max_tokens):
 
 def call_cloud(system, user, max_tokens):
     d = post('https://api.anthropic.com/v1/messages', dict(model=CFG['cloud_model'], max_tokens=max_tokens, system=system,
-             messages=[dict(role='user', content=user)]), {'x-api-key': KEY, 'anthropic-version': '2023-06-01'})
+             messages=[dict(role='user', content=user)]), {'x-api-key': KEY, 'anthropic-version': '2023-06-01',
+             **({'anthropic-workspace-id': WORKSPACE} if WORKSPACE else {})})
     usage(dict(cloud_in=d['usage']['input_tokens'], cloud_out=d['usage']['output_tokens']))
     return ''.join(b.get('text', '') for b in d['content'] if b['type'] == 'text')
 
