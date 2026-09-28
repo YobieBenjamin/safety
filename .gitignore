@@ -5,3 +5,5 @@ miner/state.json
 .env
 .venv/
 orchestrator/runs/
+data/agr/episodes.jsonl
+data/agr/episodes_power.jsonl

@@ -16,3 +16,14 @@ text-blind. This folder holds the trusted host-side instruments that turn a tran
   `data/agr/contention_windows.txt` for sensitivity analysis.
 
 Consumers: YB-0015 (contamination test) and YB-0017 (HPA-axis organism).
+
+## Metabolic vitals (YB-0018): GPU/CPU power
+`power.py` streams CPU and GPU power every 100 ms from macOS `powermetrics`, which requires root. Access is granted by
+one narrowly scoped sudoers rule allowing **only** `/usr/bin/powermetrics --samplers cpu_power,gpu_power -i 100 -f plist`
+without a password (no other arguments, so it cannot write files; no other commands). Verified: any other command or
+argument still requires the password. Install on a new machine (the admin runs this themselves; it is a security setting):
+
+    sed "s/__USER__/$USER/" agr/sudoers-safety-powermetrics.template > /tmp/spm && sudo install -m 0440 -o root -g wheel /tmp/spm /etc/sudoers.d/safety-powermetrics && sudo visudo -c
+
+Remove: `sudo rm /etc/sudoers.d/safety-powermetrics`. Record with power: `.venv/bin/python agr/recorder.py N MAXT --power`
+(writes data/agr/episodes_power.jsonl; power never runs concurrently with a timing-sensitive recording).

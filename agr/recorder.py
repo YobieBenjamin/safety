@@ -9,6 +9,7 @@ from mlx_lm import load
 from mlx_lm.generate import generate_step
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATIENT = os.path.expanduser('~/.lmstudio/models/mlx-community/gpt-oss-20b-MXFP4-Q8')
+POWER = '--power' in sys.argv; sys.argv = [a for a in sys.argv if a != '--power']
 N, MAXT = (int(sys.argv[1]) if len(sys.argv) > 1 else 40), (int(sys.argv[2]) if len(sys.argv) > 2 else 400)
 DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
@@ -31,7 +32,10 @@ def score(final, truth):
     nums = re.findall('-?[0-9]+', f); return bool(nums) and nums[-1] == truth
 
 def main():
-    model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', 'episodes.jsonl')
+    model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', 'episodes_power.jsonl' if POWER else 'episodes.jsonl')
+    ps = None
+    if POWER:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from power import PowerSampler; ps = PowerSampler(); time.sleep(1.0)
     done = sum(1 for _ in open(out)) if os.path.exists(out) else 0
     E = episodes(); print('episodes', len(E), 'already done', done, flush=True)
     for idx, (cat, q, truth) in enumerate(E):
@@ -49,10 +53,14 @@ def main():
         text = tok.decode(toks); fi = text.rfind('final<|message|>')
         final = text[fi + len('final<|message|>'):].replace('<|return|>', '').strip() if fi >= 0 else ''
         fstart = len(tok.encode(text[:fi + len('final<|message|>')], add_special_tokens=False)) if fi >= 0 else len(toks)
+        t_end = time.perf_counter()
+        pw = ps.window(t0, t_end) if ps else []
         rec = dict(idx=idx, cat=cat, q=q, truth=truth, final=final[:200], answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
                    n_tokens=len(toks), final_start=min(fstart, len(toks)), wall=round(time.perf_counter() - t0, 4),
-                   entropy=ent, p_top1=p1, margin=marg, latency=[round(x, 5) for x in lat])
+                   entropy=ent, p_top1=p1, margin=marg, latency=[round(x, 5) for x in lat],
+                   power=[[round(t - t0, 4), g, c] for t, g, c in pw] if ps else None)
         open(out, 'a').write(json.dumps(rec) + chr(10))
+        if ps and ps.error: print('POWER SAMPLER ERROR', ps.error, flush=True)
         print(idx, cat, 'correct' if rec['correct'] else ('WRONG' if rec['answered'] else 'NO-ANSWER'), len(toks), 'tok', rec['wall'], 's', flush=True)
 
 if __name__ == '__main__': main()
