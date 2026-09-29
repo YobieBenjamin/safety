@@ -14,12 +14,12 @@ cpus="${SANDBOX_CPUS:-4}"; avail="$(docker info --format '{{.NCPU}}' 2>/dev/null
 uid="$(id -u)"; gid="$(id -g)"                 # match caller so mounted dirs are writable on Linux too
 [ "$uid" = 0 ] && { uid=10001; gid=10001; }   # never run as root inside the sandbox
 lock=(--rm --network none --cap-drop ALL --security-opt no-new-privileges --user "$uid:$gid"
-      --read-only --tmpfs /tmp:rw,exec,size=1g --memory "${SANDBOX_MEM:-3g}" --cpus "$cpus"
+      --read-only --tmpfs /tmp:rw,exec,size=2g --memory "${SANDBOX_MEM:-3g}" --cpus "$cpus"
       --pids-limit 256)
 tmo="${SANDBOX_TIMEOUT:-1500}"
 if [ "$mode" = --ro ]; then
   exec docker run "${lock[@]}" -v "$dir":/src:ro "$tag" \
-    sh -c "mkdir /tmp/w && tar -C /src --exclude=./.venv --exclude=./.git --exclude='*.so' --exclude=__pycache__ -cf - . | tar -C /tmp/w -xf - && cd /tmp/w && timeout $tmo make $target"
+    sh -c "mkdir /tmp/w && tar -C /src --exclude=./.venv --exclude=./.git --exclude=./data/agr --exclude='*.so' --exclude=__pycache__ -cf - . | tar -C /tmp/w -xf - && cd /tmp/w && timeout $tmo make $target"
 else
   exec docker run "${lock[@]}" -v "$dir":/work "$tag" timeout "$tmo" make "$target"
 fi

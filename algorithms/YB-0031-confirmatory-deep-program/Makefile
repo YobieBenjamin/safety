@@ -1,6 +1,13 @@
-.PHONY: all test experiment
-all: test
-test:
-	@test -s docs/PREREGISTRATION.md && grep -q 'decision rules' docs/PREREGISTRATION.md && echo 1/1 tests passed
-experiment:
-	@echo awaiting seed 2 and seed 3 data
+.PHONY: all build test experiment clean
+export PYTHONPATH := .:src
+all: test experiment
+build: src/libcore.so
+src/libcore.so: src/vitals.c src/hpa.c src/layergraph.c
+	gcc -O2 -Wall -Wextra -Werror -shared -fPIC -o $@ $^ -lm
+test: build
+	python3 -m py_compile src/*.py tests/*.py
+	python3 tests/test_core.py
+experiment: build
+	python3 tests/experiment.py
+clean:
+	rm -f src/libcore.so

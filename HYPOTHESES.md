@@ -171,3 +171,8 @@ vitals used in v1 (available in recorded data): V1 entropy, V2 margin, V3 layer 
 bands and levels: from derivation correct episodes only, as in the methodology; frozen before validation.
 hypotheses: H1 the AI-EWS score predicts wrong answers on held-out data (AUROC 95% CI lower bound > 0.5); H2 the score's levels are ordered (failure rate increases monotonically from stable to urgent); H3 AI-EWS (transparent, 7 banded vitals) is not significantly worse than the black-box deep organism (paired AUROC CI includes or exceeds 0); H4 serial scoring at 25/50/75/100% of reasoning shows rising trajectories on failures (median slope > 0) and flat ones on successes.
 
+## YB-0032 — Prefix-trained early-warning organism (serial observations)
+status: open
+foundation: YB-0031 (organism trained only on complete reasoning, weak on partial reasoning); clinical scores are built on serial observations
+hypothesis: an organism and AI-EWS bands trained on reasoning prefixes (25/50/75%) raise in-time alarms at matched false-alarm rates at least as often as the LLM judge on prefixes; must be pre-registered and tested on a fresh seed.
+

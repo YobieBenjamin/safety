@@ -57,6 +57,8 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 17. **AI Early Warning Score (AI-EWS).** Author's principle: judgment has no analog but the brain and biology; safety follows hospital early-warning systems (NEWS2). Methodology in docs/AI_EWS_METHODOLOGY.md. YB-0030 (pre-registered): transparent 7-vital score predicts failures (0.725), levels perfectly ordered (5.8% / 11.8% / 75% / 100% failure rate), on par with the black box.
 18. **Operations.** CI failures traced to a legacy miner self-test coupled to the live backlog; fixture isolated. Full logs archived from /tmp (wiped on reboot).
 
+19. **Confirmatory deep program (YB-0031), pre-registered, fresh test set.** No eureka: in-time alarms inferior to the LLM judge (the YB-0023 lead did not replicate). But with 9x more data the organism reached 0.89 (tied with a 6x larger judge), caught 60% of silent slips, and failure to settle was confirmed (p = 0.0007).
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.
