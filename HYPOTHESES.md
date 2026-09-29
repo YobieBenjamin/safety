@@ -172,7 +172,12 @@ bands and levels: from derivation correct episodes only, as in the methodology; 
 hypotheses: H1 the AI-EWS score predicts wrong answers on held-out data (AUROC 95% CI lower bound > 0.5); H2 the score's levels are ordered (failure rate increases monotonically from stable to urgent); H3 AI-EWS (transparent, 7 banded vitals) is not significantly worse than the black-box deep organism (paired AUROC CI includes or exceeds 0); H4 serial scoring at 25/50/75/100% of reasoning shows rising trajectories on failures (median slope > 0) and flat ones on successes.
 
 ## YB-0032 — Prefix-trained early-warning organism (serial observations)
-status: open
+status: tested (eureka flag not accepted: checkpoint look-ahead; H2, H4, H5 hold)
 foundation: YB-0031 (organism trained only on complete reasoning, weak on partial reasoning); clinical scores are built on serial observations
 hypothesis: an organism and AI-EWS bands trained on reasoning prefixes (25/50/75%) raise in-time alarms at matched false-alarm rates at least as often as the LLM judge on prefixes; must be pre-registered and tested on a fresh seed.
+
+## YB-0033 — Clean real-time race: absolute-time checkpoints and a length-only control
+status: open (next confirmatory test)
+foundation: YB-0032 (fractional checkpoints leaked total reasoning length; length alone beat the LLM judge)
+design: checkpoints at absolute token counts known in real time (e.g., every 32 tokens up to the answer); stage feature = tokens so far; organism and AI-EWS trained on the same absolute-time serial observations; competitors: LLM judge and self-consistency on the same prefixes, and a pre-registered length-so-far control; fresh seed; matched false alarms; compute time counted. Eureka only if the organism beats both the best behavior monitor and the length-so-far control (both paired CIs above 0).
 

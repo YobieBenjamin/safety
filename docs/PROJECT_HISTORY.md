@@ -59,6 +59,8 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 
 19. **Confirmatory deep program (YB-0031), pre-registered, fresh test set.** No eureka: in-time alarms inferior to the LLM judge (the YB-0023 lead did not replicate). But with 9x more data the organism reached 0.89 (tied with a 6x larger judge), caught 60% of silent slips, and failure to settle was confirmed (p = 0.0007).
 
+20. **Serial-observation organism (YB-0032).** Pre-registered eureka flag came back true (29/46 in time vs judge 9/46), but a post-hoc control showed the fractional checkpoints leak total reasoning length (length alone: 15/46). Not accepted. Serial training genuinely moves accuracy earlier (0.41 to 0.79 AUROC at 25%). Next: YB-0033 with absolute-time checkpoints and a length control.
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.
