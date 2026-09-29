@@ -31,3 +31,6 @@ jobs:
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           ./publish.sh "Mining run $(date -u +%F) - ledger and backlog"
+# DISABLED 2026-09-29 (gh workflow disable mine): the project runs local-first on the author's subscription budget with
+# no API key; this scheduled job could not mine but marked hypotheses in-progress and committed that, corrupting the
+# backlog (YB-0008, YB-0010). Re-enable only with an API key and a claim-lock shared with the local orchestrator.
