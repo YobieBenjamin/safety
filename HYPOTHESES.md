@@ -100,7 +100,7 @@ hypothesis: physical vitals alone predict failure episodes above chance. Needs o
 # Next, from the first AGR results
 
 ## YB-0019 — Layer-level network physiology
-status: open
+status: tested (depth helps directionally, not significant; first slips caught)
 foundation: YB-0009 (graph too small at 4-6 token channels); functional connectivity across brain regions
 hypothesis: a coupling graph whose nodes are the patient's 24 layers (per-token activation norms and residual drift) carries failure signal beyond raw token-level vitals.
 
@@ -144,4 +144,22 @@ hypothesis: how competing candidate answers rise, race and are abandoned across 
 
 ## Data requirement for the deep program
 Deep graphs need thousands of episodes (overfitting guard, per YB-0018): target 5,000 training episodes and a fresh held-out set, pre-registered, with graph summaries fixed in advance.
+
+## YB-0027 — Weighted assembly graph: the hunch field (author's decision model)
+status: open (architecture for the deep program)
+foundation: the brain decides by assembling hundreds to thousands of weighted signals whose weights change on the fly, producing a graded hunch rather than a binary switch. Reliability-weighted (Bayesian) cue integration; fast Hebbian plasticity; attractor dynamics; neuromodulation.
+model: nodes x_i(t) = hundreds to thousands of text-blind signals (24 layers x 5 channels, 768 routed-expert assemblies, possibility-race margins, active-probe responses). Node vote weight w_i(t) proportional to 1/sigma_i^2(t), with sigma_i^2 re-estimated each token (Kalman-style). Edge weights W_ij(t) plastic: W <- (1 - lambda) W + eta x_i x_j, protected by the YB-0002 drift budget. State z(t) relaxes by tau dz/dt = -z + phi(g(C) W(t) z + sum_i w_i x_i), with gain g set by YB-0017 cortisol C. Hunch h(t) = sigmoid(readout of z) in [0, 1], plus confidence; graded actions (continue, caution, slow, pause and ask a human, halt).
+proofs to establish: bounded state (phi bounded); contraction / unique settling when g * spectral_norm(W) * Lip(phi) < 1; bounded plastic weights under the drift budget; real-time cost O(|E|) per token (about 20k operations for 1,000 nodes with 20 neighbors each, microseconds).
+test: pre-registered against the same behavior monitors and the static deep organism, on about 5,000 training episodes and a fresh held-out set; primary: AUROC and recall on silent slips; secondary: lead time and graded-action calibration.
+
+## YB-0028 — Critical slowing down on the vital-sign graph (early-warning trends)
+status: open
+foundation: critical transitions theory (rising variance, lag-1 autocorrelation and network synchrony before tipping points; Scheffer et al., 2009)
+hypothesis: before a transformer's reasoning degrades into an unacceptable outcome, its layer and assembly graphs show the generic early-warning signature (rising variance, autocorrelation and synchrony), giving a graded trend that turns before the outcome.
+test: time-resolved, graded-severity ground truth (YB-0022 environments); score trajectory calibration (Brier, CRPS) and lead time of the turn, pre-registered.
+
+## YB-0029 — Hybrid A+B stochastic hunch field with graded output
+status: open
+foundation: YB-0027 plus B (parallel appraisal of the same situation, dissimilar architecture) and seeded brain-like noise (Langevin dynamics)
+hypothesis: combining internal physiology (A) with independent situational appraisal (B) in a seeded stochastic hunch field yields calibrated graded warnings (ok, watch, concern, urgent) that turn earlier than either alone, with proper-scoring-rule calibration on held-out trajectories.
 

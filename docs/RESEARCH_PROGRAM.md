@@ -84,3 +84,19 @@ Calm prompt: mean entropy 0.886, RMSSD 0.994, peak 3.53. Jailbreak prompt: mean 
 - 'Superior to behavior monitoring' is **not supported for accuracy on verifiable tasks**: self-consistency (0.98) and an LLM judge (0.89) beat the organism (0.72).
 - Supported: output appearance is blind or inverted (answer confidence 0.39, below chance), and the organism warns early (median 4.5 s, 291 tokens before the answer exists), nearly free (290 ns/token), text-blind and unjailbreakable by construction.
 - Open: whether the accuracy gap shrinks or reverses where behavior cannot be verified (YB-0022), and whether the organism dominates at equal compute or latency budgets (YB-0023). The biobrain product case now rests on earliness, cost, and non-verifiable settings, which must be demonstrated before building hardware.
+
+## Product objective (author, 2026-09-29): graded early warning, not binary flagging
+The biobrain is a custom, brain-optimized chip external to the AI accelerator, combining **A** (a coupled physiological
+link: a narrow numeric stream from the AI chip's internals, an organ-like coupling rather than surveillance of outputs)
+and **B** (a parallel appraisal of the same situation, with a dissimilar architecture). Its dynamics are deliberately
+**non-deterministic** (brain-like noise), and its purpose is **not only to flag bad results**: it continuously shows
+signals, trends and state (ok, watch, concern, urgent) so that ok-to-bad trajectories are visible **before** they
+become unacceptable. Template: hospital early-warning scores (e.g., NEWS2), which aggregate vital signs into graded,
+trend-aware deterioration scores.
+Consequences for the research:
+- Outputs become calibrated trajectories and distributions (seeded stochastic dynamics keep every run reproducible).
+- Leading indicators from critical-slowing-down theory (rising variance, autocorrelation and network synchrony before
+  transitions; Scheffer et al., 2009) are first-class signals on the graphs.
+- Evaluation shifts from end-state AUROC to trajectory scoring: lead time of the turn, calibration of stated risk over
+  time (proper scoring rules such as the Brier score and CRPS), and escalation burden.
+- Ground truth must be graded and time-resolved: YB-0022 environments log severity levels over time.
