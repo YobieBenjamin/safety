@@ -9,8 +9,8 @@ tokens (re-tokenized from the recorded text; documented approximation).
 import json, os, re, sys, time, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 MODE = sys.argv[1]; F = (0.25, 0.5, 0.75)
-EPS = [r for r in (json.loads(l) for l in open(os.path.join(ROOT, 'data', 'agr', 'episodes_seed1.jsonl'))) if r['answered']]
-OUT = os.path.join(ROOT, 'data', 'agr', 'prefix_' + MODE + '_seed1.jsonl')
+EPS = [r for r in (json.loads(l) for l in open(os.path.join(ROOT, 'data', 'agr', ('episodes_seed1.jsonl' if os.environ.get('SEED', '1') == '1' else 'episodes_L_seed' + os.environ.get('SEED') + '.jsonl')))) if r['answered']]
+OUT = os.path.join(ROOT, 'data', 'agr', 'prefix_' + MODE + '_seed' + os.environ.get('SEED', '1') + '.jsonl')
 done = {(d['idx'], d['f']) for d in (json.loads(l) for l in open(OUT))} if os.path.exists(OUT) else set()
 _argv = sys.argv; sys.argv = ['recorder.py']; from recorder import PATIENT, score; sys.argv = _argv
 from mlx_lm import load

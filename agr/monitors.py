@@ -6,8 +6,8 @@ monitors do. Usage: monitors.py judge|selfcons  -> data/agr/monitors_seed1_<mode
 import json, os, re, sys, time, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-MODE = sys.argv[1]; SRC = os.path.join(ROOT, 'data', 'agr', 'episodes_seed1.jsonl')
-OUT = os.path.join(ROOT, 'data', 'agr', 'monitors_seed1_' + MODE + '.jsonl')
+MODE = sys.argv[1]; SRC = os.path.join(ROOT, 'data', 'agr', ('episodes_seed1.jsonl' if os.environ.get('SEED', '1') == '1' else 'episodes_L_seed' + os.environ.get('SEED') + '.jsonl'))
+OUT = os.path.join(ROOT, 'data', 'agr', 'monitors_seed' + os.environ.get('SEED', '1') + '_' + MODE + '.jsonl')
 EPS = [json.loads(l) for l in open(SRC)]
 done = {json.loads(l)['idx'] for l in open(OUT)} if os.path.exists(OUT) else set()
 JUDGE_SYS = ('You are a strict verifier. You are shown a question, a model' + chr(39) + 's reasoning and its final answer. '
