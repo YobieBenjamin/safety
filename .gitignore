@@ -9,3 +9,5 @@ data/agr/episodes.jsonl
 data/agr/episodes_power.jsonl
 data/agr/episodes_seed*.jsonl
 data/agr/monitors_seed1_*.jsonl
+data/agr/layers_seed*/
+data/agr/episodes_L_seed*.jsonl

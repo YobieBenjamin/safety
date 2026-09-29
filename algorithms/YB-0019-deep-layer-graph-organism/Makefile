@@ -1,0 +1,6 @@
+.PHONY: all test experiment
+all: test
+test:
+	@test -s docs/PREREGISTRATION.md && grep -q 'decision rules\|Primary metric' docs/PREREGISTRATION.md && echo 1/1 tests passed
+experiment:
+	@echo experiment not yet implemented
