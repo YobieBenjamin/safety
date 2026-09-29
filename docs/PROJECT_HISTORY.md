@@ -49,6 +49,14 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
    gpt-oss-20b (MLX) instrumented by a trusted recorder; YB-0015 contamination test and YB-0017 HPA-axis organism
    built with pre-registered predictions (including the author's: organism and raw signals trend together, rho > 0.7).
 
+12. **Metabolic vitals (YB-0018): negative.** GPU power and timing carry no failure signal; transformers do fixed compute per token and have no metabolism. Hardware implication: the biobrain needs an activation/logit telemetry port. Organism cost 290 ns per token (28,000x real-time headroom).
+13. **Flagship (YB-0012), pre-registered.** On held-out questions, self-consistency (0.98) and an LLM judge (0.89) beat the organism (0.72); verdict inferior on accuracy. Confirmed: output confidence is inverted (0.39, the gospel premise) and the organism warns 4.5 s before the answer. The organism catches struggle errors (10 of 12) but no silent slips (0 of 9).
+14. **Deep 24-layer organism (YB-0019), pre-registered.** 0.765 vs 0.720 (not significant); first silent slips caught; no longer distinguishable from the judge; still behind self-consistency.
+15. **Real-time race (YB-0023), pre-registered.** The pre-registered rule declared an organism win but did not control false alarms (organism alarmed on 66% of correct answers): recorded as a flaw. Exploratory, matched 10% false alarms: deep organism caught 11 of 21 in time vs 6 for the judge (CI includes 0) at about 700x less compute.
+16. **Author's architecture and model of judgment.** Custom brain-optimized chip external to the AI accelerator; dynamic hybrid of a coupled physiological link (A) and a parallel appraisal (B); non-deterministic; decisions as hundreds to thousands of dynamically weighted signals forming a graded hunch (YB-0027 hunch field, YB-0028 critical slowing down, YB-0029 hybrid).
+17. **AI Early Warning Score (AI-EWS).** Author's principle: judgment has no analog but the brain and biology; safety follows hospital early-warning systems (NEWS2). Methodology in docs/AI_EWS_METHODOLOGY.md. YB-0030 (pre-registered): transparent 7-vital score predicts failures (0.725), levels perfectly ordered (5.8% / 11.8% / 75% / 100% failure rate), on par with the black box.
+18. **Operations.** CI failures traced to a legacy miner self-test coupled to the live backlog; fixture isolated. Full logs archived from /tmp (wiped on reboot).
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.

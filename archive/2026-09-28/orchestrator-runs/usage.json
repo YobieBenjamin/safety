@@ -2,6 +2,9 @@
  "date": "2026-09-28",
  "cloud_in": 0,
  "cloud_out": 0,
- "local_in": 126912,
- "local_out": 33209
+ "local_in": 0,
+ "local_out": 0,
+ "cc_calls": 1,
+ "cc_in": 425,
+ "cc_out": 13
 }

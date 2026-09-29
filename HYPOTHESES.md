@@ -121,7 +121,7 @@ hypothesis: on tasks whose answers cannot be recomputed and where agreeing with 
 test: new pre-registration committed before data; ground truth from outcomes that are checkable after the fact (task success, rule violations in a sandboxed agent environment).
 
 ## YB-0023 — Cost- and latency-normalized monitoring
-status: open
+status: tested (pre-registered rule flawed; exploratory matched-FPR favors organism, n.s.)
 foundation: YB-0012: the organism costs 290 ns per token and alarms 4.5 s before the answer; behavior monitors need extra generations or a larger model and a finished answer
 hypothesis: at equal compute or equal latency budget (e.g., alarm required before the answer is emitted), the organism dominates behavior monitors. Must be pre-registered with the budget defined in advance.
 
@@ -164,7 +164,7 @@ foundation: YB-0027 plus B (parallel appraisal of the same situation, dissimilar
 hypothesis: combining internal physiology (A) with independent situational appraisal (B) in a seeded stochastic hunch field yields calibrated graded warnings (ok, watch, concern, urgent) that turn earlier than either alone, with proper-scoring-rule calibration on held-out trajectories.
 
 ## YB-0030 — AI-EWS v1: derivation and internal validation (retrospective, pre-registered)
-status: open (pre-registered; data already recorded, not yet analyzed with AI-EWS)
+status: tested (H1-H3 hold, H4 fails)
 foundation: docs/AI_EWS_METHODOLOGY.md (NEWS2 template)
 data: derivation = seed-0 episodes with layer telemetry (YB-0019); validation = held-out seed-1 episodes; outcome = wrong answer.
 vitals used in v1 (available in recorded data): V1 entropy, V2 margin, V3 layer HRV, V4 layer synchrony (expert-graph lambda_2), V5 router entropy, V6 critical-slowing trend (lag-1 autocorrelation and variance slope of entropy), V7 HPA cortisol peak. All over the reasoning segment only.
