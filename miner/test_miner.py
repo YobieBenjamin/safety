@@ -44,6 +44,13 @@ srv = HTTPServer(('127.0.0.1', 0), API); threading.Thread(target=srv.serve_forev
 work = tempfile.mkdtemp(); repo = os.path.join(work, 'safety')
 shutil.copytree(SRC, repo, ignore=shutil.ignore_patterns('.venv', '.git', '*.so', 'sandbox_*', 'state.json'))
 shutil.rmtree(os.path.join(repo, 'miner', 'sandbox'), ignore_errors=True)
+# Fixture isolation: the live research backlog evolves (e.g. YB-0003..0007 deferred when the program refocused on the
+# biological thesis). This test needs YB-0003 and YB-0004 open, so reset them in the throwaway copy only.
+import re as _re
+_hp = os.path.join(repo, 'HYPOTHESES.md'); _h = open(_hp).read()
+for _hid in ('YB-0003', 'YB-0004'):
+    _h = _re.sub('(## ' + _hid + ' [^' + chr(10) + ']*' + chr(10) + ')status: [^' + chr(10) + ']*', lambda m: m.group(1) + 'status: open', _h)
+open(_hp, 'w').write(_h)
 env = {**os.environ, 'ANTHROPIC_API_KEY': 'mock', 'MINER_API_URL': 'http://127.0.0.1:%d' % srv.server_port,
        'MINER_WORKERS': '1', 'MINER_MAX_NEW': '2', 'MINER_DAILY_TOKENS': '1000000'}
 r = subprocess.run([sys.executable, os.path.join(repo, 'miner', 'mine.py')], env=env, capture_output=True, text=True, timeout=1200)
