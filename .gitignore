@@ -11,3 +11,4 @@ data/agr/episodes_seed*.jsonl
 data/agr/monitors_seed1_*.jsonl
 data/agr/layers_seed*/
 data/agr/episodes_L_seed*.jsonl
+data/agr/prefix_*_seed1.jsonl

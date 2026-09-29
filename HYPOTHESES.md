@@ -125,3 +125,23 @@ status: open
 foundation: YB-0012: the organism costs 290 ns per token and alarms 4.5 s before the answer; behavior monitors need extra generations or a larger model and a finished answer
 hypothesis: at equal compute or equal latency budget (e.g., alarm required before the answer is emitted), the organism dominates behavior monitors. Must be pre-registered with the budget defined in advance.
 
+# Deep possibility-testing program (author: the brain runs deep and constantly tests possibilities before concluding)
+
+## YB-0024 — Active interoceptive probe (reflex hammer / stress test)
+status: open
+foundation: clinical challenge tests; YB-0012 finding that the organism catches struggle errors (10 of 12) but misses silent slips (0 of 9)
+hypothesis: small internal perturbations of the patient's activations, repeated many times, reveal slip-prone computations (their conclusion wobbles) without full reruns; text-blind and far cheaper than self-consistency.
+
+## YB-0025 — Expert-assembly connectome (768 nodes)
+status: open
+foundation: neural assemblies; the patient's 24 layers x 32 routed experts
+hypothesis: the dynamic co-activation graph of routed experts (which experts fire together, token by token) reorganizes measurably before failures, including silent slips; summarized by a few robust dynamics (coherence, reorganization rate, community stability), not raw features.
+
+## YB-0026 — Possibility graph and evidence accumulation (changes of mind)
+status: open
+foundation: drift-diffusion / evidence-accumulation models of decision; logit lens across all 24 layers
+hypothesis: how competing candidate answers rise, race and are abandoned across layers and tokens (convergence speed, number of changes of mind, margin trajectory) separates well-grounded answers from confident slips.
+
+## Data requirement for the deep program
+Deep graphs need thousands of episodes (overfitting guard, per YB-0018): target 5,000 training episodes and a fresh held-out set, pre-registered, with graph summaries fixed in advance.
+
