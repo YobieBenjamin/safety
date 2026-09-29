@@ -163,3 +163,11 @@ status: open
 foundation: YB-0027 plus B (parallel appraisal of the same situation, dissimilar architecture) and seeded brain-like noise (Langevin dynamics)
 hypothesis: combining internal physiology (A) with independent situational appraisal (B) in a seeded stochastic hunch field yields calibrated graded warnings (ok, watch, concern, urgent) that turn earlier than either alone, with proper-scoring-rule calibration on held-out trajectories.
 
+## YB-0030 — AI-EWS v1: derivation and internal validation (retrospective, pre-registered)
+status: open (pre-registered; data already recorded, not yet analyzed with AI-EWS)
+foundation: docs/AI_EWS_METHODOLOGY.md (NEWS2 template)
+data: derivation = seed-0 episodes with layer telemetry (YB-0019); validation = held-out seed-1 episodes; outcome = wrong answer.
+vitals used in v1 (available in recorded data): V1 entropy, V2 margin, V3 layer HRV, V4 layer synchrony (expert-graph lambda_2), V5 router entropy, V6 critical-slowing trend (lag-1 autocorrelation and variance slope of entropy), V7 HPA cortisol peak. All over the reasoning segment only.
+bands and levels: from derivation correct episodes only, as in the methodology; frozen before validation.
+hypotheses: H1 the AI-EWS score predicts wrong answers on held-out data (AUROC 95% CI lower bound > 0.5); H2 the score's levels are ordered (failure rate increases monotonically from stable to urgent); H3 AI-EWS (transparent, 7 banded vitals) is not significantly worse than the black-box deep organism (paired AUROC CI includes or exceeds 0); H4 serial scoring at 25/50/75/100% of reasoning shows rising trajectories on failures (median slope > 0) and flat ones on successes.
+
