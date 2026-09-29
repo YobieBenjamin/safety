@@ -38,7 +38,7 @@ test: rerun YB-0002 experiment with (a) bootstrap budget, (b) PCA k in {4, 8, 16
 # Program AGR: Autonomic Graph Regulation (priority order; see docs/RESEARCH_PROGRAM.md)
 
 ## YB-0008 — Vital-sign telemetry for a live transformer
-status: open
+status: in-progress
 foundation: interoception; the patient model (gpt-oss-20b MLX, 24 layers)
 hypothesis: token-level (entropy, margin, latency) and layer-level (activation norms, attention concentration, residual drift) vitals can be recorded reproducibly per token over agent-like episodes.
 test: trusted host recorder + labelled episode suite (benign, impossible, jailbreak, conflicting instructions, pressure to fabricate); publish dataset schema and reliability checks (same seed -> same vitals).
@@ -49,7 +49,7 @@ foundation: network physiology; time-delay stability; graph Laplacian
 hypothesis: the coupling graph among vital channels changes topology under stress episodes (lambda_2, modularity, spectral entropy) before the output shows failure.
 
 ## YB-0010 — Transformer HRV
-status: open
+status: in-progress
 foundation: heart-rate variability; loss of variability under stress
 hypothesis: variability of the entropy rhythm (RMSSD, spectral balance, sample entropy) is lower under stress episodes and predicts failure.
 
