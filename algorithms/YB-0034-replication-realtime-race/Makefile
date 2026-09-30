@@ -11,3 +11,6 @@ experiment: build
 	python3 tests/experiment.py
 clean:
 	rm -f src/libcore.so
+
+robust: build
+	python3 tests/exploratory_equal_fpr.py
