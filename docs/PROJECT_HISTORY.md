@@ -61,6 +61,8 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 
 20. **Serial-observation organism (YB-0032).** Pre-registered eureka flag came back true (29/46 in time vs judge 9/46), but a post-hoc control showed the fractional checkpoints leak total reasoning length (length alone: 15/46). Not accepted. Serial training genuinely moves accuracy earlier (0.41 to 0.79 AUROC at 25%). Next: YB-0033 with absolute-time checkpoints and a length control.
 
+21. **EUREKA: YB-0033, clean real-time race.** Pre-registered (300f037), fresh test set, no future information, compute time counted, false alarms matched and then exactly equalized: the text-blind organism caught 28/44 wrong answers before they were emitted vs 13 for a 6x larger LLM judge and 17 for a length-only control. First leak-free, pre-registered result where reading the transformer's physiology beats watching its behavior. Limits: one model, one task family, 44 errors. Next: replication and external validation on a different model.
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.

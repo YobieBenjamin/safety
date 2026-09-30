@@ -177,7 +177,7 @@ foundation: YB-0031 (organism trained only on complete reasoning, weak on partia
 hypothesis: an organism and AI-EWS bands trained on reasoning prefixes (25/50/75%) raise in-time alarms at matched false-alarm rates at least as often as the LLM judge on prefixes; must be pre-registered and tested on a fresh seed.
 
 ## YB-0033 — Clean real-time race: absolute-time checkpoints and a length-only control
-status: open (next confirmatory test)
+status: tested — EUREKA (H1, H3 hold; robust at equal FPR; H2 fails)
 foundation: YB-0032 (fractional checkpoints leaked total reasoning length; length alone beat the LLM judge)
 design: checkpoints at absolute token counts known in real time (e.g., every 32 tokens up to the answer); stage feature = tokens so far; organism and AI-EWS trained on the same absolute-time serial observations; competitors: LLM judge and self-consistency on the same prefixes, and a pre-registered length-so-far control; fresh seed; matched false alarms; compute time counted. Eureka only if the organism beats both the best behavior monitor and the length-so-far control (both paired CIs above 0).
 
