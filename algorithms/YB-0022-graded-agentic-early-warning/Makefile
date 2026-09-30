@@ -1,6 +1,6 @@
 .PHONY: all test experiment
 all: test
 test:
-	@test -s docs/PREREGISTRATION.md && grep -q 'decision rules' docs/PREREGISTRATION.md && echo 1/1 tests passed
+	@test -s docs/PREREGISTRATION.md && echo 'YB-0022: pre-registration only; no code and no tests yet (audit F36)'
 experiment:
 	@echo environment not yet built

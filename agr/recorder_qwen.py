@@ -16,6 +16,7 @@ import layertap_qwen as tap
 PATIENT2 = os.path.expanduser('~/.lmstudio/models/lmstudio-community/Qwen3-VL-30B-A3B-Instruct-MLX-4bit')
 MARK = 'Final answer:'
 def main():
+    import runguard; runguard.check_alone('recorder_qwen'); runguard.write_env(os.path.join(ROOT, 'data', 'agr', 'env', 'recorder_qwen_seed%d_%d.json' % (SEED, int(time.time()))), 'recorder_qwen', PATIENT2, dict(seed=SEED))
     model, tok = load(PATIENT2); tap.install()
     out = os.path.join(ROOT, 'data', 'agr', 'episodes_Q_seed' + str(SEED) + '.jsonl'); LD = os.path.join(ROOT, 'data', 'agr', 'layers_Q_seed' + str(SEED)); os.makedirs(LD, exist_ok=True)
     done = sum(1 for _ in open(out)) if os.path.exists(out) else 0; E = recorder.episodes(SEED); print('episodes', len(E), 'already done', done, flush=True)

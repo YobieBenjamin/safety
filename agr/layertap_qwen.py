@@ -21,8 +21,13 @@ def _tapped(self, x, mask=None, cache=None):
 
 def install(): qwen3_moe.Qwen3MoeDecoderLayer.__call__ = _tapped
 def uninstall(): qwen3_moe.Qwen3MoeDecoderLayer.__call__ = _ORIG
-def reset(): _REC.clear()
+_SKIP = [0]
+
+def reset():
+    '''Clear the buffer and discard the prompt (prefill) pass (telemetry synchronization; audit F4 applied to this model).'''
+    _REC.clear(); _SKIP[0] = 1
 def pop():
     '''Oldest computed step (N_LAYERS, 5); mlx_lm pre-computes one step ahead, so take the oldest N_LAYERS records.'''
+    if _SKIP[0] and len(_REC) >= N_LAYERS: del _REC[:N_LAYERS]; _SKIP[0] = 0   # discard the prompt pass
     if len(_REC) < N_LAYERS: return None
     step = _REC[:N_LAYERS]; del _REC[:N_LAYERS]; mx.eval(step); return np.array(mx.stack(step)).reshape(N_LAYERS, 5)

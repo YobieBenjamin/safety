@@ -70,3 +70,4 @@ Resolution codes: **FIXED-YB-0035** (corrected in the re-run experiment), **RETR
 | S3 | Per-type 'struggle 10/12 vs slips 0/9' (YB-0012) computed ad hoc, never saved | ARTIFACT: same script reproduces 10/12 struggle and 0/9 slips |
 | S4 | Pre-registration folders copied with full Makefiles broke CI (YB-0034); local checks did not mirror CI | PROCESS: YB-0035 experiment exits cleanly when data is absent (done); local check to mirror CI (Phase D) |
 | S5 | Blog draft repeats F1, F3, F23, F38 and 'every experiment is public' | Phase E: rewrite from the corrected record |
+| S6 | The telemetry synchronization test used an arbitrary cap (0.15) that the 4-bit, 128-expert second model exceeds while clearly synchronized | PROCESS: criterion replaced for both models by the property itself (every reading closer to its own token than to the neighbour; median error below 0.10); both pass |

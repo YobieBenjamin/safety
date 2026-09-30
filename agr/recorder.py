@@ -35,6 +35,7 @@ def score(final, truth):
     nums = re.findall('-?[0-9]+', f); return bool(nums) and nums[-1] == truth
 
 def main():
+    import runguard; runguard.check_alone('recorder'); runguard.write_env(os.path.join(ROOT, 'data', 'agr', 'env', 'recorder_seed%d_%d.json' % (SEED, int(time.time()))), 'recorder', PATIENT, dict(seed=SEED, layers=LAYERS))
     model, tok = load(PATIENT); out = os.path.join(ROOT, 'data', 'agr', ('episodes_power.jsonl' if POWER else 'episodes.jsonl') if SEED == 0 else 'episodes_seed' + str(SEED) + '.jsonl')
     ps = None
     if LAYERS:

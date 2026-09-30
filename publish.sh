@@ -7,7 +7,10 @@ cd "$(dirname "$0")"
 [ -f .venv/bin/activate ] && . .venv/bin/activate          # project-local Python deps
 if [ "${PUBLISH_SANDBOX:-docker}" = docker ]; then          # default: verify untrusted code in the sandbox
   sandbox/ensure_docker.sh            # aborts publish (set -e) if Docker is unavailable
-  sandbox/run.sh . test --ro          # aborts publish if any test fails
+  scripts/changed_algorithms.sh > .verify_changed   # same selection as CI (Phase D)
+  echo "verify: experiments for: $(tr '\n' ' ' < .verify_changed)"
+  SANDBOX_MEM="${SANDBOX_MEM:-6g}" SANDBOX_TIMEOUT="${SANDBOX_TIMEOUT:-10800}" sandbox/run.sh . verify --ro   # aborts publish on failure
+  rm -f .verify_changed
 else                                                         # explicit opt-out: run on this machine
   if [ "$(uname)" = Darwin ] && [ -z "${SDKROOT:-}" ]; then   # macOS: pick an SDK the linker can read
     printf 'double f(double x){return x;}' > /tmp/_sdk_probe.c
@@ -18,7 +21,7 @@ else                                                         # explicit opt-out:
       done
     fi
   fi
-  make test
+  scripts/changed_algorithms.sh > .verify_changed; make verify; rm -f .verify_changed
 fi                                   # never publish unverified code
 [ -d .git ] || { git init -q -b main; }
 git add -A

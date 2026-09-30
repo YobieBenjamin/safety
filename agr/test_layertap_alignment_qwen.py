@@ -1,13 +1,13 @@
-'''Permanent alignment test (audit F4): the streamed reading for generated token t must equal the reading from a fresh,
+'''Permanent alignment test (audit F4, second monitored model): the streamed reading for generated token t must equal the reading from a fresh,
 uncached forward pass over prompt + the first t generated tokens (the pass that produces token t).'''
 import os, sys, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mlx.core as mx
 from mlx_lm import load
 from mlx_lm.generate import generate_step
-import layertap
-m, tok = load(os.path.expanduser('~/.lmstudio/models/mlx-community/gpt-oss-20b-MXFP4-Q8'))
-ids = list(tok.apply_chat_template([dict(role='system', content='Answer with only the final answer, no explanation.'), dict(role='user', content='What is 4821 * 367?')], add_generation_prompt=True, reasoning_effort='low'))
+import layertap_qwen as layertap
+m, tok = load(os.path.expanduser('~/.lmstudio/models/lmstudio-community/Qwen3-VL-30B-A3B-Instruct-MLX-4bit'))
+ids = list(tok.apply_chat_template([dict(role='user', content='What is 4821 * 367? Think step by step, then end with a line: Final answer: <number>')], add_generation_prompt=True))
 layertap.install(); layertap.reset(); toks, stored = [], []
 for (t, _), _ in zip(generate_step(mx.array(ids), m, max_tokens=12), range(12)):
     toks.append(int(t)); stored.append(layertap.pop())
