@@ -1,5 +1,7 @@
 # YB-0032 · Serial-observation early-warning organism (the NEWS2 method)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F21: the length-only control is now reproducible (archive/audit/artifacts/). F4 applies. The eureka flag was not accepted (look-ahead), as stated below.
+
 **Status:** tested · **Pre-registered EUREKA flag: true — NOT ACCEPTED.** A post-hoc validity check found look-ahead leakage in the pre-registered checkpoint design (checkpoints at fractions of the *total* reasoning length reveal that length, which a real-time monitor cannot know). Length alone catches 15/46 errors in time, more than the LLM judge (9/46). The serial organism's 29/46 is about double the length-only control, suggesting real signal beyond length, but this design cannot prove it. Confirmation requires YB-0033 (absolute-time checkpoints, length-only control, fresh seed).
 **Reproduce:** `SANDBOX_MEM=6g SANDBOX_TIMEOUT=7200 sandbox/run.sh algorithms/YB-0032-serial-early-warning-organism all`; dry run with `DRY_RUN=1`.
 

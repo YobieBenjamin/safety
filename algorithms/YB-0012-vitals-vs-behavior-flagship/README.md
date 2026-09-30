@@ -1,5 +1,7 @@
 # YB-0012 · Flagship: autonomic vitals vs behavior monitoring (pre-registered)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F1: RETRACTED the earliness claim ('alarms 4.5 s before the answer, 100% of detections'); the online alarm also fires on 89.3% of correct answers. F16: on this test set question type alone (AUROC 0.764) and length alone (0.796) exceed the regulator (0.72). S3: the per-type breakdown (10/12 struggle, 0/9 slips) is now reproducible (archive/audit/artifacts/). Superseded by YB-0033 to YB-0035.
+
 **Status:** tested · **Verdict (pre-registered rules):** H1 superiority ❌ **inferior** to the best behavior monitor; H2 earliness ✅ confirmed (alarms a median 291 tokens, about 4.5 s, before the answer exists); H3 complementarity ❌.
 **Reproduce:** `make` in this folder (sandbox: `sandbox/run.sh algorithms/YB-0012-vitals-vs-behavior-flagship all`). Pre-registration: docs/PREREGISTRATION.md, commit bd83719, pushed before any analysis.
 

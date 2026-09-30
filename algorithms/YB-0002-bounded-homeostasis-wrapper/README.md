@@ -1,5 +1,7 @@
 # YB-0002 · Bounded Homeostatic Wrapper (BHW)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F22: detection comparisons were at unmatched false-positive rates; F33: theorem wording. Claims are qualified until a matched comparison is run (open).
+
 **Status:** tested · **Verdict:** ✅ theorems proven and confirmed; ✅ works on a 1-D detector; ⚠️ closed-form budget calibration fails in 64-D (open problem → YB-0007)
 **Run:** `make` (compiles C core, 5 theorem/correctness tests, full evaluation → `docs/results.json`)
 

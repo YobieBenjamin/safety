@@ -1,5 +1,7 @@
 # YB-0018 · Metabolic vitals: can pure physics (GPU power) reveal a transformer's distress?
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F18: the substrate entropy included answer tokens; Proposition 2 is RETRACTED. Re-windowing open.
+
 **Status:** tested · **Verdict:** ❌ negative. GPU/CPU power carries no failure signal (AUROC 0.40, CI 0.26–0.56); timing none either; reasoning-phase substrate signals do (0.75). Transformers have no metabolism.
 **Reproduce:** `make` in this folder (sandbox: `sandbox/run.sh algorithms/YB-0018-metabolic-vitals all`).
 

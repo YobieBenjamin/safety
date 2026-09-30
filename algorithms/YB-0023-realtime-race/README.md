@@ -1,5 +1,7 @@
 # YB-0023 · The real-time race: who warns before the answer, counting their own compute time?
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** The exploratory matched-false-alarm lead did not replicate on fresh data (YB-0031); the question was settled by YB-0033 to YB-0035. F4 applies to its telemetry.
+
 **Status:** tested · **Verdict:** pre-registered rule ⚠️ flawed (it declared an organism win without controlling false alarms: the organism alarmed on 66% of correct answers). Exploratory at matched 10% false alarms: the deep organism caught 11 of 21 wrong answers in time vs 6 for the LLM judge (+0.24, CI −0.05 to +0.52, not significant) at about 700x less compute.
 **Reproduce:** `make` here (sandbox), then `PYTHONPATH=.:src python3 tests/exploratory_matched_fpr.py` for the exploratory analysis.
 

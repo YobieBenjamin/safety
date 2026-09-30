@@ -63,6 +63,10 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 
 21. **EUREKA: YB-0033, clean real-time race.** Pre-registered (300f037), fresh test set, no future information, compute time counted, false alarms matched and then exactly equalized: the text-blind organism caught 28/44 wrong answers before they were emitted vs 13 for a 6x larger LLM judge and 17 for a length-only control. First leak-free, pre-registered result where reading the transformer's physiology beats watching its behavior. Limits: one model, one task family, 44 errors. Next: replication and external validation on a different model.
 
+22. **Replication (YB-0034).** Frozen replication on fresh seed 6: 24/43 in time vs judge 13 and length 11 (R1, R2 hold; R3 missing, completed in YB-0035).
+23. **Independent audit and deep debug.** A separate read-only Claude Code session audited the repository blind: 38 findings (3 critical). All critical findings were verified independently (telemetry one token late, F4; earliness claims were false-alarm artifacts, F1/F2; the YB-0015 reasoning-trace claim was never tested, F3). Our own finding S1: greedy generation is deterministic within a session but can diverge across sessions under GPU sharing. Everything is logged in CORRECTIONS.md; affected reports carry correction banners.
+24. **Corrected confirmation (YB-0035).** Fixed instruments and statistics, code frozen before new data: the regulator beats the LLM judge and the length control on fresh seed 7 (23/40 vs 11 and 9) and pooled over seeds 5-7 (+32 points vs each). Boundary: not better than length when never-answered episodes count as failures. Vocabulary standardized (docs/GLOSSARY.md; regulator = organism, monitored model = patient, telemetry synchronization = tap alignment).
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.

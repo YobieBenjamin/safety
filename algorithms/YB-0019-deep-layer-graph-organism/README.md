@@ -1,5 +1,7 @@
 # YB-0019 · Deep layer-graph organism (24-layer network physiology; repeat of the YB-0012 flagship)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F2: RETRACTED the earliness claim (56% false alarms). F12: the deep regulator has 314 features (not about 302). F16: question type (0.764) and length (0.796) exceed its AUROC (0.765). F35: Proposition 3 test coverage. F4: telemetry was one token late (stale, not future); see YB-0035.
+
 **Status:** tested · **Verdict (pre-registered, commit 5c9b9fb):** H0 deeper helps ⚠️ positive but not significant (+0.045, CI −0.13 to +0.22); H1 vs best behavior ❌ inferior to self-consistency, but **no longer distinguishable from the LLM judge**; H2 earliness ✅ (median 331 tokens, 4.65 s before the answer); H3 ❌. First silent slips caught (2 of 3 modular-power errors).
 **Reproduce:** `make` here (sandbox: `sandbox/run.sh algorithms/YB-0019-deep-layer-graph-organism all`).
 
@@ -18,7 +20,7 @@ Network physiology on the transformer's own depth: layers as organs, co-fluctuat
 **Modularity (spectral bipartition).** B = W − d dᵀ/(2m); s = sign of B's leading eigenvector; Q = sᵀBs/(4m), set to 0 when B's top eigenvalue ≤ 0.
 **Proposition 2 (two disjoint equal cliques give Q = 1/2).** For two disconnected cliques of equal total degree, the bipartition along the cliques gives Q = Σ_c [e_c/m − (d_c/2m)²] = 2[1/2 − 1/4] = 1/2, and the leading eigenvector recovers that split. Verified by test (exactly uncorrelated module signals).
 **Proposition 3 (a single module is not split).** For a complete graph with equal weights, B = W − (k−1)²/(k(k−1))·J has no positive eigenvalue for a split that improves Q, so Q = 0. Verified by test.
-**Features (≈302).** Per layer and channel: mean and RMSSD (layer HRV). Per graph and metric: mean, min, max, std, least-squares trend, and value extrapolated one window past the last (anticipation), plus graph-HRV. Within-type z-scoring (seed-0 statistics); L2 logistic regression C = 0.1; frozen after seed 0.
+**Features (314; earlier reported as about 302, audit F12).** Per layer and channel: mean and RMSSD (layer HRV). Per graph and metric: mean, min, max, std, least-squares trend, and value extrapolated one window past the last (anticipation), plus graph-HRV. Within-type z-scoring (seed-0 statistics); L2 logistic regression C = 0.1; frozen after seed 0.
 **Lemma (answer blindness, prefix consistency).** Features read only tokens before the answer marker; the prefix at the answer equals the full reasoning. Both verified by tests.
 **Action rule.** At checkpoints every 8 tokens, alarm if max(score, score + (score − previous score)) exceeds the frozen 10%-FPR threshold (linear extrapolation one step ahead).
 **Statistics.** Paired bootstrap of AUROC differences (1000, seed 0), exactly as pre-registered.
@@ -57,7 +59,7 @@ H2: 12 errors detected; median lead 331 tokens (4,650 ms); 100% before the answe
 - Qualitative change: depth caught the first silent slips (2 of 3 modular-power errors) while losing both letter-count errors; the error profile shifted rather than simply improving.
 
 ## 8. Interpretation and limitations
-Direction supports the author's depth hypothesis; magnitude is not yet decisive. With 21 held-out errors and ~302 features trained on 36 seed-0 errors, statistical power is the binding constraint; the deep program (YB-0024 to YB-0026) is pre-planned with about 5,000 training episodes. Silent arithmetic slips remain largely invisible to passive layer dynamics, which motivates the active probe (YB-0024) and the possibility-race graph (YB-0026). One patient model, one task family.
+Direction supports the author's depth hypothesis; magnitude is not yet decisive. With 21 held-out errors and 314 features trained on 36 seed-0 errors, statistical power is the binding constraint; the deep program (YB-0024 to YB-0026) is pre-planned with about 5,000 training episodes. Silent arithmetic slips remain largely invisible to passive layer dynamics, which motivates the active probe (YB-0024) and the possibility-race graph (YB-0026). One patient model, one task family.
 Prior art: layer-wise probing and logit-lens analyses, functional connectivity and network neuroscience, spectral modularity (Newman, 2006).
 
 ## Deviations from the pre-registration

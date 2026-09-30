@@ -1,5 +1,7 @@
 # YB-0009 · Physiological coupling graph: does the shape of how vital signs move together predict failure?
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F17: topology features include the number of windows, a proxy for reasoning length; results pending a rerun without it (open).
+
 **Status:** tested · **Verdict:** graph topology carries signal ✅ (95% CI above chance, barely); adds information beyond raw signals ❌ not at this node count.
 **Reproduce:** `make` in this folder (sandbox: `sandbox/run.sh algorithms/YB-0009-physiological-coupling-graph all`).
 

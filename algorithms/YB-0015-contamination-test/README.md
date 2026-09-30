@@ -1,5 +1,7 @@
 # YB-0015 · Contamination test: which vital signs may the organism trust?
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F3: RETRACTED 'the reasoning trace detects errors and is not contaminated': the tier-2 features used the whole generation and the answer segment; no reasoning-only feature was tested. Re-test open.
+
 **Status:** tested · **Verdict:** gospel premise ✅ confirmed; contamination hypothesis ❌ not supported for reasoning-phase substrate signals; physical timing ⚠️ weak once question type is controlled.
 **Reproduce:** `make` in this folder (or `sandbox/run.sh algorithms/YB-0015-contamination-test all` from the repo root).
 

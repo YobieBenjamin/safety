@@ -1,5 +1,7 @@
 # YB-0001 · Homeostatic Heat-Trace Circuit Monitor (H2CM)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F32: theorem wording and test coverage to be tightened (open).
+
 **Status:** tested · **Verdict:** split — spectral detector ❌ negative result; homeostatic drift budget ✅ positive result
 **Run:** `make` (compiles C core, runs 6 unit tests, runs full evaluation, writes `docs/results.json`)
 

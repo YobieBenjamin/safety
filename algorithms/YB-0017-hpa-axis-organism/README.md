@@ -1,5 +1,7 @@
 # YB-0017 · HPA-axis organism: an external, text-blind stress regulator
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F19: 'variance 9-10x lower' is a coefficient-of-variation ratio (about 3.7x above resting level) and the drive correlates with length; F20: 290 ns/token is the HPA regulator only (the competing regulators cost 2-4 ms per check); F34: wording.
+
 **Status:** tested · **Verdict:** theorems T1–T3 ✅ proved and confirmed; author's trend prediction ✅ confirmed (rho 0.75 and 0.92; variance 9–10× lower); discrimination ⚠️ lower than raw signals (the price of stability).
 **Reproduce:** `make` in this folder (sandbox: `sandbox/run.sh algorithms/YB-0017-hpa-axis-organism all`).
 

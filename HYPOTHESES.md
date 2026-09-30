@@ -179,5 +179,17 @@ hypothesis: an organism and AI-EWS bands trained on reasoning prefixes (25/50/75
 ## YB-0033 — Clean real-time race: absolute-time checkpoints and a length-only control
 status: tested — EUREKA (H1, H3 hold; robust at equal FPR; H2 fails)
 foundation: YB-0032 (fractional checkpoints leaked total reasoning length; length alone beat the LLM judge)
-design: checkpoints at absolute token counts known in real time (e.g., every 32 tokens up to the answer); stage feature = tokens so far; organism and AI-EWS trained on the same absolute-time serial observations; competitors: LLM judge and self-consistency on the same prefixes, and a pre-registered length-so-far control; fresh seed; matched false alarms; compute time counted. Eureka only if the organism beats both the best behavior monitor and the length-so-far control (both paired CIs above 0).
+design: checkpoints at absolute token counts known in real time (as run: t in {48, 96, 192, 384}); stage feature = tokens so far; organism and AI-EWS trained on the same absolute-time serial observations; competitors: LLM judge and self-consistency on the same prefixes, and a pre-registered length-so-far control; fresh seed; matched false alarms; compute time counted. Eureka only if the organism beats both the best behavior monitor and the length-so-far control (both paired CIs above 0).
 
+## YB-0034 — see algorithms/YB-0034*/README.md
+status: tested (replicated; corrected in YB-0035)
+
+## YB-0035 — see algorithms/YB-0035*/README.md
+status: tested (primary criterion met under the corrected protocol)
+
+## YB-0036 — Re-test of the reasoning-trace claim on reasoning-only features (audit F3)
+status: open
+## YB-0037 — External validation on Qwen3-VL-30B-A3B (48 layers, 128 experts; fix its tap per F4 first)
+status: open (data collection paused)
+## YB-0038 — Prose-span hallucination flagging (product target): span-level ground truth, regulator risk trace inside false claims
+status: open

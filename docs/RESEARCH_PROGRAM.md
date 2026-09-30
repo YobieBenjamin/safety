@@ -100,3 +100,37 @@ Consequences for the research:
 - Evaluation shifts from end-state AUROC to trajectory scoring: lead time of the turn, calibration of stated risk over
   time (proper scoring rules such as the Brier score and CRPS), and escalation burden.
 - Ground truth must be graded and time-resolved: YB-0022 environments log severity levels over time.
+
+## Claim status after the deep debug and YB-0035 (2026-09-30; supersedes earlier status notes; see CORRECTIONS.md)
+- **Supported (pre-registered, fresh data, corrected protocol):** a text-blind regulator reading the monitored model's
+  internal telemetry raises in-time warnings (before the answer is emitted, compute counted, <= 10% false alarms) on
+  more wrong answers than a 5.6x-larger LLM judge and than a length-only control: seed 7 23/40 vs 11 and 9; pooled
+  seeds 5-7 +32 points vs each (CI lower bounds +19, +20). Scope: one monitored model (gpt-oss-20b), machine-gradable
+  single-answer tasks, answered episodes.
+- **Boundary:** when never-answered episodes count as failures, the regulator is no better than length alone.
+- **Supported:** output confidence is inverted (answer-token confidence AUROC 0.366 [0.304, 0.433], YB-0031).
+- **Not supported / retracted:** earliness claims of YB-0012 and YB-0019 (alarms fired on most correct answers); the
+  YB-0015 reasoning-trace claim (never tested on reasoning-only features); pre-YB-0033 accuracy claims (did not beat
+  question-type or length baselines); 'behavior monitoring is not predictive' (self-consistency and the judge are
+  strong on complete answers); 'unjailbreakable' (text-blind by construction, but robustness to adversarial inputs is untested).
+- **Open:** external validation on a different model; prose-span hallucination flagging (the product target);
+  intent-type failures (symbol grounding); the transparent AI-EWS score does not yet beat the length control.
+
+## Related work (audit F24; novelty is claimed only relative to this list)
+- **Hidden-state error and truthfulness probes:** Azaria and Mitchell (2023), 'The internal state of an LLM knows when
+  it's lying'; Kadavath et al. (2022), 'Language models (mostly) know what they know'; Orgad et al. (2024), 'LLMs know
+  more than they show'; Kossen et al. (2024), semantic entropy probes (Oxford).
+- **Uncertainty from outputs:** Farquhar et al. (2024, Nature), semantic entropy; Wang et al. (2022), self-consistency.
+- **Monitoring internals for safety:** Goldowsky-Dill et al. (2025, Apollo Research), linear probes for strategic
+  deception; early detection of reasoning non-convergence from hidden states (arXiv 2607.21433, 2026).
+- **Biology-inspired regulation and interoception:** Man and Damasio (2019, Nature Machine Intelligence), homeostasis
+  and feeling machines; Chiba and Krichmar (2020, Proceedings of the IEEE), neurobiologically inspired self-monitoring;
+  interoceptive AI (Nature Machine Intelligence, 2026); Byrnes (Astera Institute), brain-like AGI safety; Mineault et
+  al. (2024), NeuroAI for AI safety.
+- **Clinical early warning and critical transitions:** NEWS2 (Royal College of Physicians, 2017); Scheffer et al.
+  (2009, Nature), early-warning signals for critical transitions.
+- **Hardware beside the accelerator:** flexHEG (Petrie, Aarne, Ammann, Dalrymple), guarantee processors with access to
+  accelerator data paths.
+What this program adds, to our knowledge: an external, text-blind regulator evaluated in a real-time race against a
+larger LLM judge and a length-only control under a deadline that counts compute, with pre-registered fresh test sets,
+framed as a clinical early-warning system.

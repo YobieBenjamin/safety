@@ -1,5 +1,7 @@
 # YB-0031 · Confirmatory test of the deep program (derive on seed 2, test once on fresh seed 3)
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F15: H5 (failure to settle) is driven by the day-of-week questions. F14: H4 used a test-set threshold; 'silent slip' is defined by question type. F16: its AUROC (0.89) exceeds question type (0.80) and length (0.73). F4 applies.
+
 **Status:** tested · **EUREKA: false** (pre-registered, commit b177662). H1 real-time superiority ❌ inferior to the LLM judge. H2 accuracy: deep organism 0.89, **not distinguishable from the LLM judge**, inferior to self-consistency. H3 AI-EWS v2 levels ❌ not fully ordered. **H4 silent slips ✅ (60% caught). H5 failure to settle ✅ (p = 0.0007).**
 **Reproduce:** `SANDBOX_TIMEOUT=7200 sandbox/run.sh algorithms/YB-0031-confirmatory-deep-program all` (about 1 hour).
 

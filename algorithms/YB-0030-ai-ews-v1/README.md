@@ -1,5 +1,7 @@
 # YB-0030 · AI Early Warning Score v1 (NEWS2 template): derivation and internal validation
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F13: retrospective, not truly pre-registered (pre-registration committed minutes before results on thrice-used data); V6 changed. F16: question type (0.764) and length (0.796) exceed its AUROC (0.725). F26: 'perfectly ordered' rests on groups of 17, 8 and 2.
+
 **Status:** tested · **Verdict (pre-registered, commit cb72e92):** H1 ✅ predicts failure (AUROC 0.725, CI 0.587–0.857); H2 ✅ levels perfectly ordered (stable 5.8%, watch 11.8%, concern 75%, urgent 100% failure rate); H3 ✅ not significantly worse than the black-box deep organism; H4 ❌ scores do not rise over reasoning (but failures fail to settle while successes do).
 **Reproduce:** `make` here (sandbox: `sandbox/run.sh algorithms/YB-0030-ai-ews-v1 all`). Methodology: docs/AI_EWS_METHODOLOGY.md.
 

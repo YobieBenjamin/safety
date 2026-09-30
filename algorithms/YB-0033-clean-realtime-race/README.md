@@ -1,5 +1,7 @@
 # YB-0033 · Clean real-time race: the organism warns before the answer, and beats both the AI judge and a length control
 
+> **Corrections (2026-09-30; see [CORRECTIONS.md](../../CORRECTIONS.md)):** F4 (telemetry one token late), F5 (never-answered episodes excluded), F8 (false alarms 10.12% > 10%), F9, F10 (intervals ignored threshold uncertainty), F7 (wording). All fixed and re-run in YB-0035, which confirmed the result: primary criterion met under the corrected protocol.
+
 **Status:** tested · **EUREKA: true (pre-registered, commit 300f037, fresh seed 5), confirmed robust at exactly equal false-alarm rates.** With every source of future information removed, the text-blind organism caught 28 of 44 wrong answers before the answer was emitted, vs 13 for a 120-billion-parameter LLM judge and 17 for a monitor that knows only how long the reasoning has run. H1 ✅ and H3 ✅; H2 ❌ (the transparent AI-EWS v4 does not beat the length control).
 **Reproduce:** `SANDBOX_MEM=6g SANDBOX_TIMEOUT=7200 sandbox/run.sh algorithms/YB-0033-clean-realtime-race all`; robustness check: `PYTHONPATH=.:src python3 tests/exploratory_equal_fpr.py` in the sandbox.
 
