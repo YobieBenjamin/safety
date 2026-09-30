@@ -25,12 +25,19 @@ def _tapped(self, x, mask, cache=None):
 
 def install(): gpt_oss.TransformerBlock.__call__ = _tapped
 def uninstall(): gpt_oss.TransformerBlock.__call__ = _ORIG
-def reset(): _REC.clear()
+_SKIP = [0]
+
+def reset():
+    '''Clear the buffer and arrange to discard the prompt (prefill) pass. Fix for audit finding F4: mlx_lm runs the
+    prompt through the model before the pass that produces token 0, so the first N_LAYERS records belong to the prompt,
+    not to any generated token. Without this, reading t came from the pass that produced token t-1.'''
+    _REC.clear(); _SKIP[0] = 1
 N_LAYERS = 24
 
 def pop():
     '''Telemetry for the OLDEST computed step: (24, 5). mlx_lm pre-computes the next token before yielding the
     current one, so the buffer may hold one extra step; taking the oldest 24 records keeps token alignment exact.'''
+    if _SKIP[0] and len(_REC) >= N_LAYERS: del _REC[:N_LAYERS]; _SKIP[0] = 0   # discard the prompt pass (F4)
     if len(_REC) < N_LAYERS: return None
     step = _REC[:N_LAYERS]; del _REC[:N_LAYERS]
     mx.eval(step); return np.array(mx.stack(step)).reshape(N_LAYERS, 5)

@@ -64,7 +64,7 @@ def main():
         fstart = len(tok.encode(text[:fi + len('final<|message|>')], add_special_tokens=False)) if fi >= 0 else len(toks)
         t_end = time.perf_counter()
         pw = ps.window(t0, t_end) if ps else []
-        rec = dict(idx=idx, t_unix=round(time.time() - (t_end - t0), 3), cat=cat, q=q, truth=truth, final=final[:200], text=text if SEED else None, answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
+        rec = dict(toks=toks, idx=idx, t_unix=round(time.time() - (t_end - t0), 3), cat=cat, q=q, truth=truth, final=final[:200], text=text if SEED else None, answered=fi >= 0, correct=(fi >= 0 and score(final, truth)),
                    n_tokens=len(toks), final_start=min(fstart, len(toks)), wall=round(time.perf_counter() - t0, 4),
                    entropy=ent, p_top1=p1, margin=marg, latency=[round(x, 5) for x in lat],
                    power=[[round(t - t0, 4), g, c] for t, g, c in pw] if ps else None)

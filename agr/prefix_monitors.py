@@ -10,7 +10,7 @@ import json, os, re, sys, time, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 MODE = sys.argv[1]; F = (0.25, 0.5, 0.75)
 ABS = os.environ.get('CKPT') == 'abs'; T_ABS = (48, 96, 192, 384)   # YB-0033: absolute token checkpoints
-EPS = [r for r in (json.loads(l) for l in open(os.path.join(ROOT, 'data', 'agr', ('episodes_seed1.jsonl' if os.environ.get('SEED', '1') == '1' else 'episodes_L_seed' + os.environ.get('SEED') + '.jsonl')))) if r['answered']]
+EPS = [r for r in (json.loads(l) for l in open(os.path.join(ROOT, 'data', 'agr', ('episodes_seed1.jsonl' if os.environ.get('SEED', '1') == '1' else 'episodes_L_seed' + os.environ.get('SEED') + '.jsonl')))) if r['answered'] or os.environ.get('ALL_EPISODES') == '1']   # YB-0035 F5: score never-answered too
 OUT = os.path.join(ROOT, 'data', 'agr', 'prefix_' + MODE + ('_abs' if ABS else '') + '_seed' + os.environ.get('SEED', '1') + '.jsonl')
 done = {(d['idx'], d['f']) for d in (json.loads(l) for l in open(OUT))} if os.path.exists(OUT) else set()
 _argv = sys.argv; sys.argv = ['recorder.py']; from recorder import PATIENT, score; sys.argv = _argv
@@ -33,7 +33,7 @@ def final_of(text):
 def norm(a):
     a = a.lower().replace(',', ''); n = re.findall('-?[0-9]+', a); return n[-1] if n else re.sub('[^a-z]', '', a)
 for r in EPS:
-    ids = tok.encode(r['text'] or '', add_special_tokens=False)
+    ids = r['toks'] if r.get('toks') else tok.encode(r['text'] or '', add_special_tokens=False)   # F30: exact generated ids when recorded
     for f in ([t for t in T_ABS if t < r["final_start"]] if ABS else F):
         if (r['idx'], f) in done: continue
         k = int(f) if ABS else int(f * r['final_start']); pre = ids[:k]; t0 = time.perf_counter()
