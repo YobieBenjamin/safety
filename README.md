@@ -41,3 +41,7 @@ Measured on the M4 Max (128 GB): gpt-oss-120b 66 tok/s single stream, 93 tok/s a
 installs the pinned environment, checks Docker, LM Studio and credentials, and validates by building and testing every
 algorithm in the sandbox. Reference values: `docs/MACHINE_SETUP.md`. Full decision history: `docs/PROJECT_HISTORY.md`.
 Session artifacts (run logs, raw model outputs, failed attempts): `archive/` (refresh with `scripts/archive_session.sh`).
+
+## License
+
+Source-available, not open source. Copyright (c) 2026 Yobie Benjamin. Software is licensed under the PolyForm Noncommercial License 1.0.0 ([LICENSE.md](LICENSE.md)); documentation, data and figures under CC BY-NC 4.0 ([LICENSE-DOCS.txt](LICENSE-DOCS.txt)). Attribution is required for any use in whole or in part ([NOTICE](NOTICE)); commercial use requires a separate license. See [LICENSING.md](LICENSING.md) for scope and contact, and [CITATION.cff](CITATION.cff) to cite this work.
