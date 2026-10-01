@@ -29,3 +29,9 @@ Rules every experiment follows. Each rule exists because of a specific failure r
 11. **Corrections are logged, never silent.** Errors go in CORRECTIONS.md; historical reports keep their text and
     carry a correction banner. Changes to a test's pass criterion are logged too.
 12. **One vocabulary.** docs/GLOSSARY.md defines every term; new documents use its accepted names.
+13. **Independently verifiable timing, without disclosure.** At the moment a pre-registration is committed, its commit
+    hash is publicly timestamped (e.g. OpenTimestamps, anchored in a public ledger) and the hash is recorded, so anyone
+    can later verify that the exact protocol existed at that time, without the content being disclosed before the
+    author chooses. Reports cite server-side or third-party timestamps, never local git times alone. For YB-0035 the
+    evidence is GitHub's own push and CI records, preserved in archive/audit/artifacts/c1_github_server_timestamps.json.
+    *(third audit C1)*

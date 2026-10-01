@@ -98,3 +98,12 @@ Independent, read-only audit of YB-0035 and both blog drafts (archive/audit/yb00
 | B23 | minor | Related work incomplete | Burns 2023; Kuhn, Gal and Farquhar 2023; Bailey 2024 missing | DOC: add (blogs; RESEARCH_PROGRAM OPEN) |
 | B24 | minor | Task list omits one type; uneven error distribution |  | DOC: all six types; per-type breakdown OPEN |
 | B25 | minor | I verified every critical finding myself | Verification was done by the AI research assistant under the author's direction | REWORD |
+
+## Third audit (2026-09-30): the v2 blog drafts
+
+Independent, read-only audit of the two v2 drafts (archive/audit/blog_v2_audit_2026-09-30.md): no invented numbers found;
+1 critical, 9 major, 20 minor findings on verifiability, attribution, provenance and wording. Resolution in progress, critical first.
+
+| ID | Severity | Finding | Verified | Resolution |
+|---|---|---|---|---|
+| C1 | critical | Posts claim the protocol was committed before the test recordings existed, but the repository is private and git times are author-set | GitHub server records: push of b6c795b at 2026-09-30T15:26:40Z, CI run at 15:26:42Z; first seed-7 episode 15:26:49.96Z (Mac clock, offset -1.2 ms vs Apple time server when checked). Ordering holds; the margin is about 10 s, not the 4 min implied by the local commit time | ARTIFACT: archive/audit/artifacts/c1_github_server_timestamps.json. REWORD (blogs): cite GitHub server time and the ~10 s margin; state the repository is private pending patent review and the record is available to qualified reviewers. PROCESS: protocol rule 13 (public cryptographic timestamp of every pre-registration hash at commit time) |
