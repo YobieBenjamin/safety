@@ -14,7 +14,7 @@ This project is **source-available, not open source**. Two licenses apply, by ty
 **Attribution** is required whenever any part is used, in whole or in part: see [NOTICE](NOTICE). Researchers:
 please cite the work using [CITATION.cff](CITATION.cff).
 
-**Commercial licensing and permissions:** contact Yobie Benjamin via https://github.com/YobieBenjamin.
+**Commercial licensing and permissions:** contact Yobie Benjamin at yobie@ieee.org.
 
 **Patents:** these licenses grant copyright permissions only, except for the limited patent license in PolyForm
 Noncommercial 1.0.0 as stated there. No other rights to any method, apparatus or system described in this
