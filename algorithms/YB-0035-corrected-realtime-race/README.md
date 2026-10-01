@@ -2,7 +2,7 @@
 
 > **Corrections (second audit, 2026-09-30; see CORRECTIONS.md B5, B6, B8-B10, B20, B22):** seed 7 is the only fresh test set and leads; the pooled estimate is descriptive. False alarms among monitorable episodes differ (16.3% regulator, 11.0% judge, 10.3% length); with them equalized the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43]), and a threshold frozen from training data gives 22/40 (exploratory, tests/exploratory_audit2.py). A question-type baseline catches 6/40. On finished answers the LLM judge and self-consistency are more accurate than the regulator (YB-0031). No concurrent jobs were logged during the seed-7 recording; the automatic run-alone guard was added afterwards. Resynchronization is verified by agr/verify_shift.py (11/11 identical-text episodes; worst single reading 2.8 SD).
 
-**Status:** tested · **Primary criterion met under the corrected protocol** (pre-registration and full analysis code committed as b6c795b before the seed-7 test data existed). On the fresh seed-7 test set the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control, at <= 10% false alarms; confirmed on re-synchronized seeds 5 and 6 and pooled over 1,610 episodes (+32 points vs each, 95% CI lower bounds +19 and +20). Boundary: counting never-answered episodes as failures, the regulator is no better than length alone.
+**Status:** tested · **Primary criterion met under the corrected protocol** (pre-registration and full analysis code committed as b6c795b before the seed-7 test data existed). On the fresh seed-7 test set the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control, at <= 10% false alarms; seeds 5 and 6 (re-used test sets, re-synchronized) agree, and their pooled estimate is descriptive only. With false alarms equalized among monitorable episodes the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43], exploratory). On finished answers the LLM judge is more accurate (YB-0031). Boundary: counting never-answered episodes as failures, the regulator is no better than length alone.
 **Reproduce:** `SANDBOX_MEM=6g SANDBOX_TIMEOUT=10800 sandbox/run.sh algorithms/YB-0035-corrected-realtime-race all` (dry run: `DRY_RUN=1`).
 
 ## 1. Plain English
@@ -10,7 +10,7 @@ An independent audit found real flaws in how the earlier real-time race was meas
 
 The result held. With a warning counting only if it arrives, compute time included, before the model emits its answer, and every monitor allowed to flag at most 10% of correct answers, the text-blind regulator caught 23 of 40 wrong answers on the new set; a 120-billion-parameter AI judge caught 11, and a monitor that knows only how long the model has been thinking caught 9. The same holds on the two earlier test sets re-analysed with corrected telemetry, and pooled over all three.
 
-There is a clear boundary. When 'the model never finished answering' also counts as a failure, those episodes are long by definition, and length alone spots them as well as the regulator does. The regulator's advantage is on the confident wrong answers, the gospel problem, not on predicting whether the model will finish.
+There is a clear boundary. When 'the model never finished answering' also counts as a failure, those episodes are long by definition, and length alone spots them as well as the regulator does. The regulator's advantage is on answered wrong answers (their confidence was not measured in this experiment), not on predicting whether the model will finish.
 
 ## 2. Theory
 As YB-0033: a text-blind regulator reading the monitored model's internal telemetry, trained on real-time-knowable serial observations (the NEWS2 method), competing under a deadline against behavior monitors and a length control.
@@ -22,7 +22,7 @@ Race, features and controls as YB-0033 (Propositions 1-3 there). Corrections, ea
 **Threshold-resampling bootstrap (F10):** each of 1,000 resamples draws all episodes with replacement and re-sets τ* for both monitors before computing the recall difference. *Proposition 2:* identical monitors give exactly [0, 0, 0]. Tested.
 **First crossing (F28):** seconds to spare = D − (t_clock + c) at the earliest in-time check with score > τ*. Tested.
 **Fixed cost (F29):** regulator and AI-EWS checks cost a fixed 5 ms (measured 4.1 ms), making in-time status deterministic.
-**Telemetry synchronization (F4):** the fixed tap discards the prompt pass; a permanent test compares each streamed reading with a fresh uncached forward pass. Old seeds are resynchronized by the verified one-step shift (0.012-0.014 vs 0.5-0.9 channel standard deviations).
+**Telemetry synchronization (F4):** the fixed tap discards the prompt pass; a permanent test compares each streamed reading with a fresh uncached forward pass. Old seeds are resynchronized by the one-step shift, verified by agr/verify_shift.py on all 11 of 20 re-recorded episodes whose text reproduced exactly: median error 0.012 channel standard deviations with the shift vs 0.81 without, the shift better in 11 of 11, worst single reading 2.8 (the other 9 episodes diverged across sessions; CORRECTIONS S1).
 
 ## 4. Code map
 | File | Role |

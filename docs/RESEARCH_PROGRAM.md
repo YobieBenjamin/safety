@@ -105,7 +105,7 @@ Consequences for the research:
 - **Supported (pre-registered, fresh data, corrected protocol):** a text-blind regulator reading the monitored model's
   internal telemetry raises in-time warnings (before the answer is emitted, compute counted, <= 10% false alarms) on
   more wrong answers than a 5.6x-larger LLM judge and than a length-only control: seed 7 23/40 vs 11 and 9; pooled
-  seeds 5-7 +32 points vs each (CI lower bounds +19, +20). Scope: one monitored model (gpt-oss-20b), machine-gradable
+  seeds 5-7 +32 points vs each (CI lower bounds +19, +20). [Superseded: see the claim status after the second audit below; seed 7 leads and the pooled figure is descriptive.] Scope: one monitored model (gpt-oss-20b), machine-gradable
   single-answer tasks, answered episodes.
 - **Boundary:** when never-answered episodes count as failures, the regulator is no better than length alone.
 - **Supported:** output confidence is inverted (answer-token confidence AUROC 0.366 [0.304, 0.433], YB-0031).
