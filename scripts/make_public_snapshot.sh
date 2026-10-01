@@ -31,9 +31,10 @@ cd "$PUB"
 [ ! -e docs/book ] || { echo 'ABORT: book directory present in snapshot'; exit 1; }
 BIG=$(find . -path ./.git -prune -o -name '*.md' -size +300k -print)
 [ -z "$BIG" ] || { echo "ABORT: unexpectedly large prose files: $BIG"; exit 1; }
-if grep -rIlE 'ghp_[A-Za-z0-9]{20,}|github_pat_|sk-ant-|AKIA[0-9A-Z]{16}|PRIVATE KEY|OAUTH_TOKEN=[A-Za-z0-9]{8,}|gmail\.com|icloud\.com' --exclude-dir=.git . ; then
-  echo 'ABORT: secret or personal-address pattern found'; exit 1
-fi
+# Every line of every file is checked; lines that are themselves scanner pattern definitions (they contain grep -rIlE /
+# grep -rnIE) are ignored, and any real match is printed before aborting.
+HITS=$(grep -rnIE 'ghp_[A-Za-z0-9]{20,}|github_pat_|sk-ant-|AKIA[0-9A-Z]{16}|PRIVATE KEY|OAUTH_TOKEN=[A-Za-z0-9]{8,}|gmail\.com|icloud\.com' --exclude-dir=.git . | grep -vE 'grep -r[nI]+[lI]*E' || true)
+[ -z "$HITS" ] || { echo "ABORT: secret or personal-address pattern found:"; echo "$HITS"; exit 1; }
 
 cat > PROVENANCE.md <<PROV
 # Provenance of this public snapshot
