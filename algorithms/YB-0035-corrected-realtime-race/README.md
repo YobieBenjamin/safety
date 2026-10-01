@@ -1,12 +1,14 @@
 # YB-0035 · The real-time race re-run under the corrected protocol (independent-audit fixes)
 
+> **Corrections (second audit, 2026-09-30; see CORRECTIONS.md B5, B6, B8-B10, B20, B22):** seed 7 is the only fresh test set and leads; the pooled estimate is descriptive. False alarms among monitorable episodes differ (16.3% regulator, 11.0% judge, 10.3% length); with them equalized the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43]), and a threshold frozen from training data gives 22/40 (exploratory, tests/exploratory_audit2.py). A question-type baseline catches 6/40. On finished answers the LLM judge and self-consistency are more accurate than the regulator (YB-0031). No concurrent jobs were logged during the seed-7 recording; the automatic run-alone guard was added afterwards. Resynchronization is verified by agr/verify_shift.py (11/11 identical-text episodes; worst single reading 2.8 SD).
+
 **Status:** tested · **Primary criterion met under the corrected protocol** (pre-registration and full analysis code committed as b6c795b before the seed-7 test data existed). On the fresh seed-7 test set the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control, at <= 10% false alarms; confirmed on re-synchronized seeds 5 and 6 and pooled over 1,610 episodes (+32 points vs each, 95% CI lower bounds +19 and +20). Boundary: counting never-answered episodes as failures, the regulator is no better than length alone.
 **Reproduce:** `SANDBOX_MEM=6g SANDBOX_TIMEOUT=10800 sandbox/run.sh algorithms/YB-0035-corrected-realtime-race all` (dry run: `DRY_RUN=1`).
 
 ## 1. Plain English
 An independent audit found real flaws in how the earlier real-time race was measured: the telemetry reached the regulator one token late, episodes that never produced an answer were quietly left out, the regulator's false-alarm rate slightly exceeded its cap, and the uncertainty intervals were too narrow. We verified every finding ourselves, fixed the instruments and the statistics, froze the full analysis code on GitHub, and only then recorded a brand-new test set of 600 questions.
 
-The result held and got firmer. With a warning counting only if it arrives, compute time included, before the model emits its answer, and every monitor allowed to flag at most 10% of correct answers, the text-blind regulator caught 23 of 40 wrong answers on the new set; a 120-billion-parameter AI judge caught 11, and a monitor that knows only how long the model has been thinking caught 9. The same holds on the two earlier test sets re-analysed with corrected telemetry, and pooled over all three.
+The result held. With a warning counting only if it arrives, compute time included, before the model emits its answer, and every monitor allowed to flag at most 10% of correct answers, the text-blind regulator caught 23 of 40 wrong answers on the new set; a 120-billion-parameter AI judge caught 11, and a monitor that knows only how long the model has been thinking caught 9. The same holds on the two earlier test sets re-analysed with corrected telemetry, and pooled over all three.
 
 There is a clear boundary. When 'the model never finished answering' also counts as a failure, those episodes are long by definition, and length alone spots them as well as the regulator does. The regulator's advantage is on the confident wrong answers, the gospel problem, not on predicting whether the model will finish.
 
@@ -34,7 +36,7 @@ Race, features and controls as YB-0033 (Propositions 1-3 there). Corrections, ea
 | docs/PREREGISTRATION.md, docs/dryrun.json | Protocol and dry run committed before seed 7 |
 
 ## 5. Repeatable proof
-The command above regenerates docs/results.json from data/. Seed 7 was recorded alone after the protocol was confirmed on GitHub; the fixed recorder saves token ids, and the pack step asserts one reading per generated token and applies no shift.
+The command above regenerates docs/results.json from data/. Seed 7 was recorded after the protocol was confirmed on GitHub (agr/start_seed7_after_push.sh), with no concurrent jobs logged; the fixed recorder saves token ids, and the pack step asserts one reading per generated token and applies no shift.
 Data fingerprints (SHA-256 prefix): seed7_L.jsonl.gz 81afb1cc2efde5ef; layers_seed7_0.npz b16a3af84c5f3459; prefix_judge_abs_s7.jsonl.gz 7450675d553cc09b; prefix_selfcons_abs_s7.jsonl.gz 10db78a8751d7f07; realignment_manifest.json 6237b387b9f84d28; 
 
 ## 6. Results (derivation seeds 2-4: 5,367 answered, 402 wrong)

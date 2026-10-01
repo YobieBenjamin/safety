@@ -67,6 +67,8 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 23. **Independent audit and deep debug.** A separate read-only Claude Code session audited the repository blind: 38 findings (3 critical). All critical findings were verified independently (telemetry one token late, F4; earliness claims were false-alarm artifacts, F1/F2; the YB-0015 reasoning-trace claim was never tested, F3). Our own finding S1: greedy generation is deterministic within a session but can diverge across sessions under GPU sharing. Everything is logged in CORRECTIONS.md; affected reports carry correction banners.
 24. **Corrected confirmation (YB-0035).** Fixed instruments and statistics, code frozen before new data: the regulator beats the LLM judge and the length control on fresh seed 7 (23/40 vs 11 and 9) and pooled over seeds 5-7 (+32 points vs each). Boundary: not better than length when never-answered episodes count as failures. Vocabulary standardized (docs/GLOSSARY.md; regulator = organism, monitored model = patient, telemetry synchronization = tap alignment).
 
+25. **Second audit (YB-0035 and blog drafts).** No leakage found; 25 findings on interpretation (2 critical: the win holds only before the answer exists, offline the judge is better; YB-0035 never measured confidence). Artifact gaps closed with committed scripts; exploratory fairness checks: equal monitorable false alarms 19 vs 11 (+0.20 [+0.02, +0.43]), frozen threshold 22/40, question-type baseline 6/40.
+
 ## Open items
 - Anthropic API key in Keychain, then a supervised pilot (`./mine --max 1`) to measure real cloud-token cost per algorithm.
 - Decide the single miner of record: local orchestrator (`./mine`) vs GitHub `mine.yml`; running both would compete for hypotheses.

@@ -134,3 +134,9 @@ Consequences for the research:
 What this program adds, to our knowledge: an external, text-blind regulator evaluated in a real-time race against a
 larger LLM judge and a length-only control under a deadline that counts compute, with pre-registered fresh test sets,
 framed as a clinical early-warning system.
+
+## Claim status after the second audit (2026-09-30; supersedes the pooled framing above)
+- **Supported, narrowly:** before the answer exists, under a deadline that counts compute, the text-blind regulator catches more wrong answers than a 5.6x-larger LLM judge reading the reasoning so far: fresh seed 7, 23 vs 11 of 40 (+0.30 [+0.049, +0.487]); with false alarms equalized among monitorable episodes 19 vs 11 (+0.20 [+0.02, +0.43], exploratory); threshold frozen from training data 22/40.
+- **Not supported:** that behavior monitoring cannot tell when to worry. On finished answers the LLM judge (0.947) and self-consistency (0.982) are more accurate than the regulator (0.890). The regulator's advantage is speed and cost before the answer exists.
+- **Not measured:** confidence of the wrong answers caught in YB-0035; no claim about confident errors is made from it.
+

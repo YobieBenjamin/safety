@@ -1,11 +1,6 @@
 # Corrections log
 
-**Outcome of the deep debug (2026-09-30).** All critical findings were independently verified. The real-time result
-was re-run end to end under a corrected protocol (YB-0035, committed before its test data existed): the regulator beats
-both the LLM judge and the length control on the fresh seed-7 test set and on seeds 5 and 6 (pooled 1,610 episodes:
-+32 points vs each, 95% CI lower bounds +19 and +20), at <= 10% false alarms. Boundary: when never-answered episodes
-count as failures, the regulator is no better than length alone. Pre-YB-0033 accuracy claims did not beat
-question-type or length baselines (F16). Terminology from here on follows docs/GLOSSARY.md (e.g. regulator = organism).
+**Outcome of the deep debug (2026-09-30; revised after the second audit).** All critical findings were independently verified. The real-time result was re-run under a corrected protocol (YB-0035, code committed before its test data existed). On the only fresh test set (seed 7), before the answer exists, the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control (+0.30 [+0.049, +0.487] vs the judge). Exploratory checks after the second audit: with false alarms equalized among monitorable episodes, 19 vs 11 (+0.20 [+0.02, +0.43]); with a threshold frozen from training data, 22 of 40. Seeds 5 and 6 (reused test sets) agree; their pooled estimate is descriptive only. Boundaries: on finished answers the LLM judge (0.947) and self-consistency (0.982) are more accurate than the regulator (0.890); with never-answered episodes counted as failures, the regulator is no better than length. Pre-YB-0033 accuracy claims did not beat question-type or length baselines (F16). Terminology from here on follows docs/GLOSSARY.md (e.g. regulator = organism).
 
 Every error found in this repository, who found it, how it was verified, and how it was resolved. Nothing is silently
 edited: a correction changes the affected document **and** is recorded here. Sources: the independent audit
@@ -71,3 +66,35 @@ Resolution codes: **FIXED-YB-0035** (corrected in the re-run experiment), **RETR
 | S4 | Pre-registration folders copied with full Makefiles broke CI (YB-0034); local checks did not mirror CI | PROCESS: YB-0035 experiment exits cleanly when data is absent (done); local check to mirror CI (Phase D) |
 | S5 | Blog draft repeats F1, F3, F23, F38 and 'every experiment is public' | Phase E: rewrite from the corrected record |
 | S6 | The telemetry synchronization test used an arbitrary cap (0.15) that the 4-bit, 128-expert second model exceeds while clearly synchronized | PROCESS: criterion replaced for both models by the property itself (every reading closer to its own token than to the neighbour; median error below 0.10); both pass |
+
+## Second audit (2026-09-30): YB-0035 and the blog drafts
+
+Independent, read-only audit of YB-0035 and both blog drafts (archive/audit/yb0035_blog_audit_2026-09-30.md): 25 findings (2 critical, 10 major, 13 minor). It found no leakage in YB-0035 and recomputed its key counts; the problems were in interpretation. Findings B1, B6, B7, B9 and B20 were verified independently before any change.
+
+| ID | Severity | Finding | Verified | Resolution |
+|---|---|---|---|---|
+| B1 | critical | Blogs: watching words cannot tell you when to worry; more reliable than the judge | YB-0031 results: judge 0.947, self-consistency 0.982 vs regulator 0.890 on finished answers (checked) | REWORD: claim limited to before the answer exists, under a deadline; offline the judge is better (blogs, RESEARCH_PROGRAM) |
+| B2 | critical | Blogs: confident wrong answers | YB-0035 never measures confidence (checked) | REWORD: wrong answers |
+| B3 | major | Blogs: warnings come earlier | Median seconds to spare favour the judge on seeds 5 and 6 | REWORD: earlier dropped |
+| B4 | major | Plain blog: each test set brand new and used once | Seeds 5 and 6 reused from YB-0033/34 | REWORD: only seed 7 is fresh |
+| B5 | major | Pooled estimate presented as the headline | Two of three sets already known positive; mixed judge inputs | DOC: seed 7 leads; pooled descriptive (this file, YB-0035 README, RESEARCH_PROGRAM, LEDGER) |
+| B6 | major | 10% cap set on test answers; monitorable false alarms unequal (16.3/11.0/10.3%) | Recomputed from results.json (checked) | ARTIFACT: YB-0035 tests/exploratory_audit2.py: equal monitorable false alarms 19 vs 11, +0.20 [+0.02, +0.43]; frozen derivation threshold 22/40 |
+| B7 | major | Technical blog: first audit 3 critical, 23 major, 12 minor | Audit file severity column: 3 / 20 / 15 (checked); repo documents not affected | FIX in blog |
+| B8 | major | Technical blog: regulator beats question-type baseline | No such baseline in YB-0035 | ARTIFACT: type baseline C3 catches 6/40; regulator minus type +0.43 [+0.19, +0.63] |
+| B9 | major | Resynchronization verified on 6 episodes by an uncommitted script | Confirmed: script missing; committed log showed 8/20 mismatches | ARTIFACT: agr/verify_shift.py: 11/20 identical-text episodes, median error 0.012 vs 0.81 SD (shift vs none), better in 11/11, worst single reading 2.8 SD |
+| B10 | major | Per-checkpoint AUROC only for seed 7, no CIs; could reflect predicting eventual length | Seed 6 t=384: regulator 0.530 vs judge 0.607 | OPEN: all seeds with CIs; limitation stated |
+| B11 | major | Plain blog: graded warnings | The winner is a binary-thresholded logistic model; AI-EWS v4 did not beat length | REWORD |
+| B12 | major | Technical blog: robustly supported | One model, one checkpoint set, one machine | REWORD: supported on the pre-registered test set |
+| B13 | minor | Faster serving would help every monitor | Only behavior monitors would benefit | REWORD |
+| B14 | minor | Structural blind spot generalized from one model, no base rate |  | REWORD |
+| B15 | minor | More than 90% confidence misquotes YB-0015 | Source: at least 0.9 on every answer token | REWORD |
+| B16 | minor | No power difference; same work per word | Power result is not detectable (AUROC 0.40); mechanism retracted (F18) | REWORD |
+| B17 | minor | Judge about 1.5 to 2 s, no artifact |  | ARTIFACT: archive/audit/artifacts/judge_timing.py: seed 7 median 1.55 s, 90th percentile 7.2 s |
+| B18 | minor | First result beating behavior attributed to YB-0035 | YB-0033 met it first | REWORD per F7 |
+| B19 | minor | Before the questions exist; confirmed on GitHub | Questions are seed-determined; it was the recordings that did not exist | REWORD |
+| B20 | minor | Recorded alone; launch wrapper uncommitted | Guard added later; no contention logged | ARTIFACT: agr/start_seed7_after_push.sh (byte-identical); REWORD: no concurrent jobs logged, guard added afterwards |
+| B21 | minor | Alignment pass criterion changed after seed 7 | Logged as S6 | DOC: disclosed next to the second-model claim |
+| B22 | minor | YB-0035 README: result got firmer | Seed-7 lower bound vs judge +0.049 is below YB-0034 +0.070 | REWORD: held |
+| B23 | minor | Related work incomplete | Burns 2023; Kuhn, Gal and Farquhar 2023; Bailey 2024 missing | DOC: add (blogs; RESEARCH_PROGRAM OPEN) |
+| B24 | minor | Task list omits one type; uneven error distribution |  | DOC: all six types; per-type breakdown OPEN |
+| B25 | minor | I verified every critical finding myself | Verification was done by the AI research assistant under the author's direction | REWORD |
