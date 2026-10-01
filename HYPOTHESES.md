@@ -231,3 +231,33 @@ within budget, and every injected telemetry fault raises an alarm (fail-safe, no
 status: pre-registered 2026-10-01 (algorithms/YB-0042-probe-baseline); recording
 hypothesis: the regulator's in-time advantage over the LLM judge also holds against a standard linear probe on raw hidden states (the text-blind competitor from prior work), trained on the same derivation data and evaluated in the same race.
 test: pre-registered on a fresh seed; probes on residual-stream activations at matched checkpoints; same race rules; report regulator minus probe with threshold-resampling CIs. If the probe matches or beats the regulator, the contribution is the race methodology and external framing, not the telemetry features.
+
+# Design track: commit points and two-tier monitoring (logged 2026-10-01; author-endorsed principles)
+Principle: every decision has a commit point (the moment it can no longer be taken back). A verdict that arrives after
+the commit point can no longer prevent harm, only report it. Measured monitor latencies: regulator about 5 ms (fixed);
+LLM judge on a reasoning prefix median 1.55 s, 90th percentile 7.2 s; strong reviewer on a full document (Claude Opus 5.5,
+Fable 5.1) 58-166 s. Loosely coupled design: monitors share an ordered record of proposed actions (ID + content
+fingerprint; every verdict bound to both); actions classed by reversibility and severity (reversible/low: commit, review
+after, undo if flagged; irreversible or high with time: hold for the reviewer, budget sized to its tail latency;
+irreversible and time-critical: only the regulator is fast enough, its alarm triggers a pre-defined safe fallback);
+conflict rule (irreversible: most conservative verdict wins; reversible: reviewer may override the regulator); missing
+verdict = alarm; tamper-evident hash-chain log. Limit: the regulator detects strain and error in the model, not the
+severity of consequences in the world; grave-outcome prevention needs the regulator, a consequence model and this policy.
+
+## YB-0043 — Two-tier gating simulation on recorded data
+status: open (after YB-0042)
+hypothesis: combining the regulator (fast) and an LLM reviewer (slow) under commit-point policies stops more wrong
+answers before commitment, at an acceptable cost in delay and false holds, than either monitor alone.
+test: replay recorded episodes (YB-0033 to YB-0035, YB-0042) with each monitor at its measured latency distribution;
+sweep hold budgets (tokens or seconds before the answer is released) and policies (regulator-only fallback, reviewer
+hold, conservative-wins conflict rule). Report: wrong answers stopped before commitment, correct answers delayed or held,
+added latency (median and tail), and verdicts that arrive too late (counted, never discarded). Pre-register before running.
+
+## YB-0039 (extension) — Formal model including the reviewer, action IDs and commit points
+status: open (design track; extends YB-0039)
+hypothesis: the commit-point protocol satisfies, for all interleavings in bounded configurations: (1) no irreversible
+high-severity action commits without reviewer clearance or a regulator all-clear within its budget; (2) no verdict
+applies to a different action version than the one it judged (ID + fingerprint binding); (3) a monitor that misses its
+budget always produces an alarm; (4) every commit and verdict appears in the hash-chain log in a consistent order;
+(5) no deadlock between hold and fallback.
+test: TLA+ (or equivalent) specification checked exhaustively by a model checker; pass = no invariant or liveness violation.
