@@ -5,3 +5,4 @@
 2026-09-30T03:07:29Z end qwen recorder smoke test (stopped by 300 s limit)
 2026-09-30T03:28:56Z start download of 3 MLX models (network/disk only) during seed-6 chain
 2026-09-30T03:34:11Z end model downloads
+2026-10-01T03:39:20Z 2026-10-01T03:39:42Z backlog commit + push (text only, git) during YB-0042 seed-2 recording; one episode (seed 2, idx 372) at 2.05 s vs typical 0.7-1.1 s; no other episodes affected
