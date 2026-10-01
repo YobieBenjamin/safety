@@ -228,7 +228,7 @@ within budget, and every injected telemetry fault raises an alarm (fail-safe, no
 <!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->
 
 ## YB-0042 — Hidden-state probe baseline (fourth audit D4-M5)
-status: pre-registered 2026-10-01 (algorithms/YB-0042-probe-baseline); recording
+status: tested 2026-10-01: H1 not distinguishable (probe matches regulator); H2 not replicated; deviations disclosed in its README
 hypothesis: the regulator's in-time advantage over the LLM judge also holds against a standard linear probe on raw hidden states (the text-blind competitor from prior work), trained on the same derivation data and evaluated in the same race.
 test: pre-registered on a fresh seed; probes on residual-stream activations at matched checkpoints; same race rules; report regulator minus probe with threshold-resampling CIs. If the probe matches or beats the regulator, the contribution is the race methodology and external framing, not the telemetry features.
 
@@ -261,3 +261,13 @@ applies to a different action version than the one it judged (ID + fingerprint b
 budget always produces an alarm; (4) every commit and verdict appears in the hash-chain log in a consistent order;
 (5) no deadlock between hold and fallback.
 test: TLA+ (or equivalent) specification checked exhaustively by a model checker; pass = no invariant or liveness violation.
+
+## YB-0044 — OpenShell integration prototype: internal-state signal gating agent actions
+status: open (after YB-0043)
+hypothesis: an OpenShell policy that consumes an internal-state risk score (regulator or probe) can hold or block irreversible tool calls when the score is high, stopping actions built on wrong conclusions that permission policy alone allows, at acceptable delay.
+test: in a sandboxed agent task with verifiable outcomes, compare policy-only enforcement with policy plus internal-state gating; measure harmful-but-permitted actions stopped, correct actions delayed or blocked, and added latency. Pre-register before running.
+
+## YB-0045 — Powered replication of the judge comparison
+status: open (next scientific priority)
+hypothesis: with training data matched to YB-0035 (about 1,800 episodes per derivation seed) and the false-alarm cap over all correct test episodes (the YB-0035 definition), an internal-state monitor (probe and regulator) catches more wrong answers in time than the LLM judge on a fresh test seed. Pre-register with the population defined identically in prose and code, and a power calculation.
+
