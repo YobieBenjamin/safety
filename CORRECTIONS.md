@@ -161,3 +161,9 @@ Independent, read-only audit (archive/audit/blog_v4_audit_2026-10-01.md). Verdic
 |---|---|---|---|
 | D5-A1 | major | Posts said audits were told nothing about earlier findings; audits 2-4 could and did read them | REWORD v5: fresh, read-only sessions, separate from the work; later audits could read earlier findings |
 | D5-A2..A11 | minor | Audit count; YB-0019 matched (not failed) the type baseline; reused seeds labelled; low reasoning effort of the monitored model; expert-count source; false-alarm footnote; single judge configuration (weak early); Part II without Part I; AI audits not unforgiving; full reference missing from the record | REWORD v5; FIX F16 wording; ARTIFACT model_sizes.json (experts); DOC RESEARCH_PROGRAM full reference |
+
+## Self-found (2026-10-01)
+
+| ID | Finding | How found | Resolution |
+|---|---|---|---|
+| S7 | The YB-0042 chain publish committed 4,810 raw per-episode recordings (about 466 MB) under data/agr: new filenames were not covered by .gitignore | Found by the three-copy verification before any public upload completed (public stayed at b7d526d) | FIX: untracked (files kept locally and in private history; packed copies under algorithms/YB-0042-probe-baseline/data are the record); .gitignore extended; snapshot pipeline now aborts on raw recordings |
