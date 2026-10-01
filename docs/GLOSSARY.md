@@ -128,8 +128,8 @@ regulator = organism; monitored model = patient; telemetry synchronization = tap
 
 **Text-blind** [PGM]
 - *Plain English:* the regulator never reads words, only numbers.
-- *Technical:* the regulator's input space contains no tokens or strings; only numeric features of the patient's
-  internal state and timing. *Claim status:* text-blindness is by construction. "Unjailbreakable" is **not** claimed
+- *Technical:* the regulator's input space contains no tokens or strings: numeric features of the patient's internal
+  state and timing, plus the task category and elapsed token count used for normalization (third audit M5). *Claim status:* text-blindness is by construction. "Unjailbreakable" is **not** claimed
   (untested; audit F23).
 
 **Interoception** [STD]

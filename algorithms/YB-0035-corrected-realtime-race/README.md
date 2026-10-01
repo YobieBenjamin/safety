@@ -1,8 +1,8 @@
 # YB-0035 · The real-time race re-run under the corrected protocol (independent-audit fixes)
 
-> **Corrections (second audit, 2026-09-30; see CORRECTIONS.md B5, B6, B8-B10, B20, B22):** seed 7 is the only fresh test set and leads; the pooled estimate is descriptive. False alarms among monitorable episodes differ (16.3% regulator, 11.0% judge, 10.3% length); with them equalized the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43]), and a threshold frozen from training data gives 22/40 (exploratory, tests/exploratory_audit2.py). A question-type baseline catches 6/40. On finished answers the LLM judge and self-consistency are more accurate than the regulator (YB-0031). No concurrent jobs were logged during the seed-7 recording; the automatic run-alone guard was added afterwards. Resynchronization is verified by agr/verify_shift.py (11/11 identical-text episodes; worst single reading 2.8 SD).
+> **Corrections (second audit, 2026-09-30; see CORRECTIONS.md B5, B6, B8-B10, B20, B22):** seed 7 is the only fresh test set and leads; the pooled estimate is descriptive. False alarms among monitorable episodes differ (16.3% regulator, 11.0% judge, 10.3% length); with them equalized the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43]), and a threshold frozen from training data gives 22/40 (exploratory, tests/exploratory_audit2.py). A question-type baseline catches 6/40. On finished answers self-consistency was more accurate than an earlier regulator and the judge was not distinguishable from it (YB-0031). No concurrent jobs were logged during the seed-7 recording; the automatic run-alone guard was added afterwards. Resynchronization is verified by agr/verify_shift.py (11/11 identical-text episodes; worst single reading 2.8 SD).
 
-**Status:** tested · **Primary criterion met under the corrected protocol** (pre-registration and full analysis code committed as b6c795b before the seed-7 test data existed). On the fresh seed-7 test set the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control, at <= 10% false alarms; seeds 5 and 6 (re-used test sets, re-synchronized) agree, and their pooled estimate is descriptive only. With false alarms equalized among monitorable episodes the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43], exploratory). On finished answers the LLM judge is more accurate (YB-0031). Boundary: counting never-answered episodes as failures, the regulator is no better than length alone.
+**Status:** tested · **Primary criterion met under the corrected protocol** (pre-registration and full analysis code committed as b6c795b before the seed-7 test data existed). On the fresh seed-7 test set the regulator raised in-time warnings on 23 of 40 wrong answers vs 11 for the LLM judge and 9 for the length control, at <= 10% false alarms; seeds 5 and 6 (re-used test sets, re-synchronized) agree, and their pooled estimate is descriptive only. With false alarms equalized among monitorable episodes the regulator still leads, 19 vs 11 (+0.20 [+0.02, +0.43], exploratory). On finished answers self-consistency is more accurate (YB-0031). Boundary: counting never-answered episodes as failures, the regulator is no better than length alone.
 **Reproduce:** `SANDBOX_MEM=6g SANDBOX_TIMEOUT=10800 sandbox/run.sh algorithms/YB-0035-corrected-realtime-race all` (dry run: `DRY_RUN=1`).
 
 ## 1. Plain English
@@ -11,6 +11,8 @@ An independent audit found real flaws in how the earlier real-time race was meas
 The result held. With a warning counting only if it arrives, compute time included, before the model emits its answer, and every monitor allowed to flag at most 10% of correct answers, the text-blind regulator caught 23 of 40 wrong answers on the new set; a 120-billion-parameter AI judge caught 11, and a monitor that knows only how long the model has been thinking caught 9. The same holds on the two earlier test sets re-analysed with corrected telemetry, and pooled over all three.
 
 There is a clear boundary. When 'the model never finished answering' also counts as a failure, those episodes are long by definition, and length alone spots them as well as the regulator does. The regulator's advantage is on answered wrong answers (their confidence was not measured in this experiment), not on predicting whether the model will finish.
+
+**Inputs besides telemetry (third audit M5):** the regulator also receives the question type and the elapsed token count (normalization is per type and checkpoint). A type-by-length baseline catches 9/40 on seed 7 (docs/exploratory_audit3.json).
 
 ## 2. Theory
 As YB-0033: a text-blind regulator reading the monitored model's internal telemetry, trained on real-time-knowable serial observations (the NEWS2 method), competing under a deadline against behavior monitors and a length control.
@@ -52,7 +54,7 @@ Per-checkpoint AUROC on seed 7 (t = 48/96/192/384): regulator 0.704/0.730/0.798/
 **Sensitivity (F5), seed 7 with never-answered episodes as failures (600; 105 failures):** regulator 68/105, length C1 74/105, judge 65/105; regulator minus judge +0.029 [−0.155, +0.121], minus length −0.057 [−0.193, +0.061]: not supported.
 
 ## 7. Verdict
-- **Primary criterion met under the corrected protocol**, and consistent on both secondary test sets and pooled.
+- **Primary criterion met under the corrected protocol** on the fresh seed-7 test set; the re-used seeds 5 and 6 agree (their pooled estimate is descriptive only).
 - **Boundary:** the advantage is on answered wrong answers; for never-answered episodes (long by definition), length alone is as good.
 - AI-EWS v4 still does not beat the length control.
 

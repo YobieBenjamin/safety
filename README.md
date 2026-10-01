@@ -45,3 +45,7 @@ Session artifacts (run logs, raw model outputs, failed attempts): `archive/` (re
 ## License
 
 Source-available, not open source. Copyright (c) 2026 Yobie Benjamin. Software is licensed under the PolyForm Noncommercial License 1.0.0 ([LICENSE.md](LICENSE.md)); documentation, data and figures under CC BY-NC 4.0 ([LICENSE-DOCS.txt](LICENSE-DOCS.txt)). Attribution is required for any use in whole or in part ([NOTICE](NOTICE)); commercial use requires a separate license. See [LICENSING.md](LICENSING.md) for scope and contact, and [CITATION.cff](CITATION.cff) to cite this work.
+
+## Authorship and AI assistance
+
+Research direction, hypotheses and the biological thesis are Yobie Benjamin's. The code, experiments, analyses, reports and blog drafts in this repository were largely produced by AI agents under his direction: Anthropic's Claude (via a Claude subscription, including Claude Code sessions) as research assistant and orchestrator, and a locally run open model (gpt-oss-120b) for some code generation. The three audits recorded in archive/audit/ were separate, read-only Claude sessions given no knowledge of earlier findings; they are independent of the authoring session but are not independent of the AI system, and no human expert review has yet been performed. Every correction is logged in CORRECTIONS.md.

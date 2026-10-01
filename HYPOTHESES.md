@@ -193,3 +193,34 @@ status: open
 status: open (data collection paused)
 ## YB-0038 — Prose-span hallucination flagging (product target): span-level ground truth, regulator risk trace inside false claims
 status: open
+
+# Design track: from simulation to silicon (logged 2026-09-30; run after the integrity work)
+Issues that will surface if the theory holds: race conditions, attribution of telemetry under pipelining, and vitals
+that span several processors. Early versions already appeared in simulation (F4: the tap ran one step behind the
+generator; S1: GPU sharing changed outputs because floating-point combination order changes results).
+
+## YB-0039 — Formal model of the telemetry protocol (race freedom)
+status: open (design track)
+hypothesis: a telemetry protocol that tags every reading with (request, token, layer, step) and discards readings from
+rejected speculative tokens is free of misattribution, loss and deadlock under pipelining, batching, speculative
+decoding, out-of-order arrival and backpressure.
+test: a formal specification (e.g. TLA+) checked exhaustively by a model checker for bounded configurations; pass =
+no invariant violation (every reading attributed to exactly the step that produced it; no reading silently dropped;
+missing telemetry always raises an alarm) and no deadlock.
+
+## YB-0040 — Sharded vitals: exact equivalence across processors
+status: open (design track)
+hypothesis: the five layer vitals can be computed from per-shard partial results (sums of squares for norms, partial
+dot products for the cosine, local router statistics for entropy) and combined in a fixed order, giving results
+identical to single-device computation, so the regulator's input does not depend on how the model is split.
+test: split the computation across two or more processes as simulated chips (tensor-, pipeline- and expert-parallel
+layouts); pass = bit-identical vitals versus the single-device reference under a fixed combination order, across
+repeated runs with randomized arrival order.
+
+## YB-0041 — Virtual SoC timing: hold buffer, backpressure and fault injection
+status: open (design track)
+hypothesis: with a small token hold buffer (tokens released k steps late), the regulator's warnings can always act
+before emission, while the regulator never slows the model; dropped or late telemetry is detected and escalated.
+test: a timing simulator replaying recorded episodes with the regulator on a separate clock; vary k, regulator
+latency and drop rates; pass = at the chosen k, zero warnings arrive after emission, measured added latency stays
+within budget, and every injected telemetry fault raises an alarm (fail-safe, not fail-silent).

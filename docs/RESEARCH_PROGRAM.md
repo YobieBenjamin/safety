@@ -137,6 +137,11 @@ framed as a clinical early-warning system.
 
 ## Claim status after the second audit (2026-09-30; supersedes the pooled framing above)
 - **Supported, narrowly:** before the answer exists, under a deadline that counts compute, the text-blind regulator catches more wrong answers than a 5.6x-larger LLM judge reading the reasoning so far: fresh seed 7, 23 vs 11 of 40 (+0.30 [+0.049, +0.487]); with false alarms equalized among monitorable episodes 19 vs 11 (+0.20 [+0.02, +0.43], exploratory); threshold frozen from training data 22/40.
-- **Not supported:** that behavior monitoring cannot tell when to worry. On finished answers the LLM judge (0.947) and self-consistency (0.982) are more accurate than the regulator (0.890). The regulator's advantage is speed and cost before the answer exists.
+- **Not supported:** that behavior monitoring cannot tell when to worry. On finished answers, self-consistency (0.982) was significantly more accurate than an earlier, pre-fix regulator (0.890), and the LLM judge (0.947) was not distinguishable from it (YB-0031). The regulator's advantage is speed and cost before the answer exists.
 - **Not measured:** confidence of the wrong answers caught in YB-0035; no claim about confident errors is made from it.
+
+## Disclosures added after the third audit (2026-09-30)
+- **Inputs (M5):** besides layer telemetry, the regulator receives the question type and the elapsed token count (its features are normalized per type and checkpoint). In open-ended use the type may be unknown. A baseline using only type and elapsed length catches 9/40 on seed 7 vs the regulator's 23/40 (YB-0035 docs/exploratory_audit3.json).
+- **Design history (M6):** the corrected real-time design followed a pre-registered race the regulator lost (YB-0031: 4/47 vs the judge's 12/47) and a design rejected for look-ahead (YB-0032). YB-0033 to YB-0035 are the redesign, so the confirmatory value rests on the fresh test sets after it.
+- **Authorship (M7):** see README.md, Authorship and AI assistance.
 
