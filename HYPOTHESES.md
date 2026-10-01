@@ -268,6 +268,6 @@ hypothesis: an OpenShell policy that consumes an internal-state risk score (regu
 test: in a sandboxed agent task with verifiable outcomes, compare policy-only enforcement with policy plus internal-state gating; measure harmful-but-permitted actions stopped, correct actions delayed or blocked, and added latency. Pre-register before running.
 
 ## YB-0045 — Powered replication of the judge comparison
-status: open (next scientific priority)
+status: pre-registered 2026-10-01 (algorithms/YB-0045-powered-replication); recording
 hypothesis: with training data matched to YB-0035 (about 1,800 episodes per derivation seed) and the false-alarm cap over all correct test episodes (the YB-0035 definition), an internal-state monitor (probe and regulator) catches more wrong answers in time than the LLM judge on a fresh test seed. Pre-register with the population defined identically in prose and code, and a power calculation.
 
