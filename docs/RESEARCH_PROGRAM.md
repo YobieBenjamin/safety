@@ -122,7 +122,7 @@ Consequences for the research:
   more than they show'; Kossen et al. (2024), semantic entropy probes (Oxford).
 - **Uncertainty from outputs:** Farquhar et al. (2024, Nature), semantic entropy; Wang et al. (2022), self-consistency.
 - **Monitoring internals for safety:** Goldowsky-Dill et al. (2025, Apollo Research), linear probes for strategic
-  deception; early detection of reasoning non-convergence from hidden states (arXiv 2607.21433, 2026).
+  deception; early detection of reasoning non-convergence from hidden-state probes (Oladri, Jawahar and Mohamed, 2026, Token Budget Saturation and Mechanistic Early Detection of Reasoning Non-Convergence in Chain-of-Thought Models, arXiv:2607.21433).
 - **Biology-inspired regulation and interoception:** Man and Damasio (2019, Nature Machine Intelligence), homeostasis
   and feeling machines; Chiba and Krichmar (2020, Proceedings of the IEEE), neurobiologically inspired self-monitoring;
   interoceptive AI (Nature Machine Intelligence, 2026); Byrnes (Astera Institute), brain-like AGI safety; Mineault et
