@@ -58,3 +58,5 @@ Points raised on failures, by vital: margin 32, entropy 21, router entropy 21, c
 
 ## Deviations from the pre-registration
 None in the analysis. Operationalized from the methodology: vital direction learned from derivation outcomes only.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

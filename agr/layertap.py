@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Layer telemetry for the patient (gpt-oss, mlx_lm TransformerBlock). Wraps the block's forward so it computes exactly
 the same output, and additionally records, for the newest token at each of the 24 layers:
   [0] ||attention update||  [1] ||expert (MoE) update||  [2] ||residual out||  [3] cos(residual in, out)  [4] router entropy

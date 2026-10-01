@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0023 behavior monitors on reasoning PREFIXES, with measured wall-clock compute time (run on a quiet machine).
 Usage: prefix_monitors.py judge|selfcons  -> data/agr/prefix_<mode>_seed1.jsonl (resumable)
 For each answered seed-1 episode and checkpoint f in {0.25, 0.5, 0.75}: prefix = first floor(f * final_start) generated

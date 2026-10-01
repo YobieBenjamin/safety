@@ -46,3 +46,5 @@ Checkpoints must be placed at times a real-time monitor can know (absolute token
 
 ## Deviations from the pre-registration
 None in the analysis. The look-ahead leak is a design flaw in the pre-registration itself, found by a post-hoc control; the EUREKA flag is therefore not accepted.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

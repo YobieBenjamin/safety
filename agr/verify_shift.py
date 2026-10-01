@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Audit B9: complete verification of the one-step resynchronization of old recordings (agr/pack_realigned.py).
 Re-records seed-2 episodes 0..N-1 with the FIXED tap and compares each new reading new[t] with the old stored readings
 old[t+1] (the claimed shift) and old[t] (no shift). Episodes whose re-recording diverged from the original generation

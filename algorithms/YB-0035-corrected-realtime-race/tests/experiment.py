@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0035 corrected real-time race, per docs/PREREGISTRATION.md (committed with this code before seed 7 exists).
 Primary: seed 7 (fixed tap, answered episodes). Sensitivity (F5): seed 7 incl. never-answered as failures.
 Secondary: seeds 5 and 6 re-analysed on realigned data; pooled 5+6+7 (R3). DRY_RUN=1: plumbing check on derivation data.'''

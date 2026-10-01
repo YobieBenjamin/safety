@@ -32,3 +32,5 @@ transformer cannot create judgment calls. Safety therefore follows the template 
 ## Properties to prove per version
 Monotonicity (more deviation never lowers S), boundedness (0-21), per-point explainability (each point traceable to one
 vital and band), and threshold stability (bands fixed from derivation data only).
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

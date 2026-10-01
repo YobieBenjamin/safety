@@ -64,3 +64,5 @@ Prior art: layer-wise probing and logit-lens analyses, functional connectivity a
 
 ## Deviations from the pre-registration
 None. Re-recording identity check excluded 0 episodes.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

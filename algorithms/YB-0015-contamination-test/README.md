@@ -58,3 +58,5 @@ At 10% FPR, within type: substrate recall 52.8% overall and **59.3% on confident
 
 ## 8. Limitations and prior art
 36 errors, so confidence intervals are wide. One patient model, one task family (verifiable arithmetic and lookup), greedy decoding. One ~1 minute publish window overlapped recording and episode start times were not yet stored, so affected episodes (~10 of 480, tier 0 only) cannot be identified; the recorder now stamps t_unix. Related work: token-level uncertainty and semantic entropy for error detection (Farquhar et al., 2024); confidence calibration of language models. The new element is the tiered contamination test under the Independence Principle.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

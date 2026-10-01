@@ -57,3 +57,5 @@ The organism was trained only on complete reasoning and then scored on partial r
 ## Deviations from the pre-registration
 1. The hunch field (YB-0027) was listed as a monitor but not implemented; no hypothesis depends on it.
 2. The first analysis run crashed while writing results (a NumPy boolean in the JSON writer) after computing and before any output was saved or shown; the identical analysis was re-run once with a fixed writer. No test-set result was seen before the re-run.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

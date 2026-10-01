@@ -62,3 +62,5 @@ One patient model (gpt-oss-20b) and one family of machine-gradable tasks; 44 tes
 
 ## Deviations from the pre-registration
 None in the analysis. The equal-false-alarm robustness check was added after seeing results and is labeled exploratory.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

@@ -73,3 +73,5 @@ Slow-drift stream (inputs morph 0–4 → 5–9 over 2000 steps), flag rate on t
 - The drift budget is detector-agnostic: it wraps any score with a mean-shifting baseline. It should be re-tested on the strongest baseline (energy / activation-Mahalanobis) and on a transformer — that is hypothesis YB-0002.
 - Scale: toy MLP, 8×8 digits, 5 seeds. O(n³) Jacobi per input is fine at n≈70, not at transformer width (would need Lanczos / stochastic trace estimation).
 - Prior art: activation-Mahalanobis OOD (Lee et al., 2018), energy scores (Liu et al., 2020), graph heat-kernel signatures (Sun et al., 2009), CUSUM-style change detection. The novel parts are the per-input effective-connectivity graph as the object of monitoring and the bounded-homeostasis framing of anti-poisoning; neither novelty has been checked against a systematic literature search yet.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''AGR vitals recorder (TRUSTED host code; MLX needs the Apple GPU). Runs the patient model on episodes with
 machine-verifiable answers and records per-token vitals. No LLM judges anything: correctness is computed.
   tier 0 (physical): per-token latency, effort (tokens spent)   tier 2 (substrate): entropy, top-1 prob, top1-top2 margin

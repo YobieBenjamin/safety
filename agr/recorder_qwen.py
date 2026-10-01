@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Second patient (external validation): Qwen3-VL-30B-A3B text model, 48 layers, 128 experts, with layertap_qwen.
 Same questions and grader as agr/recorder.py. The model is asked to reason step by step and end with 'Final answer:';
 the reasoning segment is every token before that marker. Usage: recorder_qwen.py N MAXT --seed=S

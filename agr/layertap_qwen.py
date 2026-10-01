@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Layer telemetry for the second patient (Qwen3-VL-30B-A3B text model: mlx_lm qwen3_moe decoder, 48 layers, 128 experts).
 Same five vitals per layer as agr/layertap.py: [0] ||attention update|| [1] ||expert (MoE) update|| [2] ||residual out||
 [3] cos(residual in, out) [4] router entropy over experts. Computes exactly the original output (extra reads only).'''

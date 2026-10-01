@@ -80,3 +80,5 @@ Every attempt is kept, including failures (see LEDGER.md and archive/).
 - Local models: strong at design prose and mechanical fixes, unreliable at novel math code; never let a model verify its own theorems.
 - Deterministic scaffolding (templates, static gates, sandbox) beats more model calls.
 - Fail closed everywhere; test the failure path, not just the success path.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

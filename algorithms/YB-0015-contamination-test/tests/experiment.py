@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0015 contamination test. Pre-registered (2026-09-28, before data were seen):
  P1 a meaningful share of errors is delivered confidently, and the substrate tier misses them at 10% FPR;
  P2 the physical tier catches a meaningful share of the errors the substrate tier misses.

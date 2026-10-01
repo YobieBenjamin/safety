@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Summarize the book with the LOCAL model (free): ~25k-char chunks aligned to ## sections.
 Writes docs/book/SUMMARY.md. Focus: the author's theses, biology/brain/stress/instinct content, safety claims, math.'''
 import json, os, re, sys, urllib.request, time

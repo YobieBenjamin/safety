@@ -54,3 +54,5 @@ Mean GPU power: 11.01 W on correct answers, 10.09 W on wrong answers.
 
 ## 8. Limitations and prior art
 16 failures (wide intervals); 240 episodes; power sampled about every 117 ms, so short episodes have few samples; one patient model on one machine. Prior art: energy and power profiling of ML inference; hardware performance counters as side channels. The new element is testing metabolic signals as safety vitals under the Independence Principle, with a structural explanation of the null result.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

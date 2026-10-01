@@ -19,3 +19,5 @@ Replicated (R1, R2). R3 missing here (audit F6); computed in YB-0035: pooled see
 
 ## Deviations
 R3 not computed by the analysis script (discovered in the audit); completed in YB-0035. A brief GPU-sharing window at the start of the seed-6 recording is logged in data/agr/contention_windows.txt.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

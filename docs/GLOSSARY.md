@@ -428,3 +428,5 @@ ideas, the narrative record, and the error record (CORRECTIONS.md), respectively
 | silent slip | defined by question type, not confidence | confident error (if redefined by measured confidence) |
 | vital sign | fine in plain English; vague technically | telemetry channel (technical), vital (plain) |
 | lead time | meaningless without false-alarm control | seconds to spare at matched false alarms |
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

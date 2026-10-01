@@ -224,3 +224,5 @@ before emission, while the regulator never slows the model; dropped or late tele
 test: a timing simulator replaying recorded episodes with the regulator on a separate clock; vary k, regulator
 latency and drop rates; pass = at the chosen k, zero warnings arrive after emission, measured added latency stays
 within budget, and every injected telemetry fault raises an alarm (fail-safe, not fail-silent).
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

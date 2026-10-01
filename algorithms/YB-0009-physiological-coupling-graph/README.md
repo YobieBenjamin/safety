@@ -50,3 +50,5 @@ Propositions 1–3 are proved above and checked by `make test`; `make` regenerat
 
 ## 8. Limitations and prior art
 Small graphs, 36 failures (wide intervals), one patient and task family, window and lag chosen a priori (not tuned). Prior art: network physiology and time-delay stability (Bashan, Ivanov et al., 2012), graph signal processing, functional connectivity in neuroscience. The new element is applying coupling-graph topology to a transformer's vital signs as an external monitor.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

@@ -27,3 +27,5 @@ argument still requires the password. Install on a new machine (the admin runs t
 
 Remove: `sudo rm /etc/sudoers.d/safety-powermetrics`. Record with power: `.venv/bin/python agr/recorder.py N MAXT --power`
 (writes data/agr/episodes_power.jsonl; power never runs concurrently with a timing-sensitive recording).
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

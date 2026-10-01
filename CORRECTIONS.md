@@ -116,3 +116,5 @@ Independent, read-only audit of the two v2 drafts (archive/audit/blog_v2_audit_2
 | M7 | major | Posts do not disclose that code, experiments and drafts were largely AI-written, or that all audits were AI sessions | README model-written code note | DOC: README.md Authorship and AI assistance; REWORD in v3 |
 | M8 | major | Closest prior work (early detection of reasoning non-convergence from hidden states, arXiv 2607.21433) not cited; novelty overstated | RESEARCH_PROGRAM related work lists it | REWORD in v3 |
 | M9 | major | Re-ran the key experiment from scratch overstates: only seed 7 was newly recorded | YB-0035 PREREGISTRATION | REWORD in v3 |
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

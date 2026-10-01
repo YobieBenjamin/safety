@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''B2: realigned layer packs (audit F4). Old recordings stored the prompt pass first, so the true reading for generated
 token t is stored[t+1] (verified: agr/verify_realignment.py, /tmp/determinism.log). Reasoning segment only, norm channels
 log1p-scaled, float16. Also writes realignment_manifest.json with per-seed counts.'''

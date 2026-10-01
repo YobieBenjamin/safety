@@ -1,3 +1,4 @@
+/* Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed. | SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE) | Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 */
 /* YB-0015 core: summary features of a vital-sign time series (one episode, one channel).
  * out[0] mean, [1] std, [2] RMSSD (successive-difference variability, as in heart-rate variability),
  * [3] max, [4] min, [5] least-squares slope per step, [6] spike fraction (> mean + 2 std).

@@ -35,3 +35,5 @@ Rules every experiment follows. Each rule exists because of a specific failure r
     author chooses. Reports cite server-side or third-party timestamps, never local git times alone. For YB-0035 the
     evidence is GitHub's own push and CI records, preserved in archive/audit/artifacts/c1_github_server_timestamps.json.
     *(third audit C1)*
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

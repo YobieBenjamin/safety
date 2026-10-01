@@ -145,3 +145,4 @@ framed as a clinical early-warning system.
 - **Design history (M6):** the corrected real-time design followed a pre-registered race the regulator lost (YB-0031: 4/47 vs the judge's 12/47) and a design rejected for look-ahead (YB-0032). YB-0033 to YB-0035 are the redesign, so the confirmatory value rests on the fresh test sets after it.
 - **Authorship (M7):** see README.md, Authorship and AI assistance.
 
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

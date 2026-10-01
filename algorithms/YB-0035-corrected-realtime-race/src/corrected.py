@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0035 corrected race statistics (audit fixes F8, F9, F10, F28, F29). Pure functions, tested in tests/test_core.py.
 An episode's checks for one monitor: list of (score, t_clock, compute_s, deadline) in time order.'''
 import numpy as np

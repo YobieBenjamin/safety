@@ -63,3 +63,5 @@ One monitored model and one family of machine-gradable tasks; 40 wrong answers i
 
 ## Deviations from the pre-registration
 None.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

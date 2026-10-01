@@ -59,3 +59,5 @@ Parameters are defaults, not fitted (deliberately, to avoid overfitting 36 failu
 
 ## Addendum: real-time budget (measured 2026-09-28)
 The organism costs **290 ns per token** (RK4, 4 substeps, one CPU core, software). The patient's token interval is 12.28 ms median and 8.11 ms at the fastest 1%: about **28,000x headroom**. Real-time regulation is not compute-bound; the engineering constraint for an on-accelerator biobrain is telemetry access (activations and logits every token), not the regulator itself.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

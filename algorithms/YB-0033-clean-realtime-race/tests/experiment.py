@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0033, exactly per docs/PREREGISTRATION.md (commit 300f037). DRY_RUN=1: derivation subset, seed-4 stand-in test with
 seeded random stand-in behavior scores; writes docs/dryrun.json; never reads seed 5.'''
 import json, os, sys, time, glob, numpy as np

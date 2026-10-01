@@ -96,3 +96,5 @@ Data fingerprints (SHA-256 prefix): monitors_judge.jsonl.gz d3d2c1dd3ba9dc18; mo
 
 ## Deviations from the pre-registration
 None in the analysis. Operational: the self-consistency monitor crashed at startup (an argument-parsing bug) and was restarted before producing any output; the analysis chain was changed to wait until both monitors had covered every answered episode.
+
+<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->

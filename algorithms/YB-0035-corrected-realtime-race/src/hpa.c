@@ -1,3 +1,4 @@
+/* Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed. | SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE) | Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 */
 /* YB-0017 core: HPA-axis organism (hypothalamus -> pituitary -> adrenal) as a 3-node graph ODE.
  *   fb(C) = 1 / (1 + (C/Ki)^n)                          cortisol negative feedback (edge C -> H, C -> A)
  *   dH/dt = b + k1 * S(t) * fb(C) - w1 * H              CRH, driven by stress input S >= 0

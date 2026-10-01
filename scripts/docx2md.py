@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
+# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''Dependency-free .docx -> Markdown for the book: Heading 2/3 -> ##/###, chapter lines -> #,
 Consolas paragraphs -> fenced code blocks, bold/italic runs, lists, tables. Usage: docx2md.py in.docx out.md'''
 import zipfile, re, sys, xml.etree.ElementTree as ET
