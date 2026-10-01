@@ -28,6 +28,8 @@ else                                                         # explicit opt-out:
 fi                                   # never publish unverified code
 [ -d .git ] || { git init -q -b main; }
 git add -A
+if git ls-files | grep -q '^docs/book/'; then echo 'ABORT: book files are staged; the book must never be committed'; exit 1; fi
+scripts/make_manifest.sh > /dev/null && git add MANIFEST.sha256   # fingerprint of every file, always current
 git -c user.name="${GIT_NAME:-Yobie Benjamin}" -c user.email="${GIT_EMAIL:-YobieBenjamin@users.noreply.github.com}" \
     commit -qm "${1:-Mining run $(date -u +%F)}" || echo "nothing new to commit"
 sync() {  # merge whatever is already on GitHub (e.g. LICENSE, browser uploads) before pushing
