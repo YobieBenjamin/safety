@@ -48,3 +48,6 @@ else
   echo "Authenticate first: 'gh auth login' or export GITHUB_TOKEN"; exit 1
 fi
 echo "Published: https://github.com/$OWNER/$REPO"
+
+# mirror sync: keep the second local copy (~/safety) identical to GitHub after every publish
+[ -d "$HOME/safety/.git" ] && git -C "$HOME/safety" pull -q --ff-only || echo "warning: mirror ~/safety not synced"

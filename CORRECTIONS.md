@@ -184,3 +184,19 @@ archive/audit/blog_v6_audit_2026-10-01.md: 1 critical, 8 major, 11 minor. Number
 | D6-M7 | major | NVIDIA facts lacked a committed source | DOC: docs/sources/nvidia_open_agent_safety_platform.md; attribution in v7 |
 | D6-M8 | major | YB-0042 OpenTimestamps proof pending when audited | Resolved: proof complete (Bitcoin-anchored), committed in 4a3da80; RFC 3161 tokens added |
 | D6-m1..m11 | minor | Four-layer wording; which audit verified F2; contention windows; YB-0042 training-size description; seed-8 counts; "clearly"; base rate for correct answers; quantized build; theorem-test coverage; CITATION.cff pointed to the private repo; GitHub timestamps retrieved by the author | FIX: YB-0042 README, CITATION.cff, ARTIFACT derivation_sizes.json; REWORD v7 |
+
+## Seventh audit (2026-10-01): the v8 blog drafts, the first audit of YB-0045
+
+archive/audit/blog_v8_audit_2026-10-01.md: 1 critical, 7 major, 7 minor. Every figure verified; YB-0045 analysis code unchanged since pre-registration 682f373.
+
+| ID | Severity | Finding | Resolution |
+|---|---|---|---|
+| D7-C1 | critical | Public snapshot lacks YB-0045, docs/sources, rule 13 and timestamp proofs (repeat of D6-C1) | Re-cut after these fixes and verified on GitHub before posting |
+| D7-M1 | major | Public YB-0042 OpenTimestamps proof was the unfinished one | Fixed by the re-cut (complete proof committed in 4a3da80) |
+| D7-M2 | major | YB-0045 OpenTimestamps proof pending; timeline of the RFC 3161 tokens not stated | FIX: proof upgraded (complete, 4 Bitcoin attestations); REWORD: OTS 14:53Z, RFC 3161 15:45Z (after derivation recording began at 15:14Z, before the first test recording at 18:59Z) |
+| D7-M3 | major | No audit had reviewed YB-0045 | This audit covers it; REWORD |
+| D7-M4 | major | "At every checkpoint" overstated; equal-false-alarm and frozen-threshold results lack intervals | FIX RESEARCH_PROGRAM; REWORD v9 |
+| D7-M5 | major | Probe compute cost assumed (5 ms), never measured | DOC + REWORD |
+| D7-M6 | major | "Solid ground" overstated | REWORD |
+| D7-M7 | major | Seed 7 called the main result while YB-0045 carries the conclusion | REWORD |
+| D7-m1..m7 | minor | Per-seed sums (only the judge differs); older regulator in the offline comparison; YB-0045 monitorable false-alarm rates; power figures without an artifact; 24x is versus one layer; 100+ partners from secondary outlets; comma splice | ARTIFACT tests/power.py + docs/power.json; REWORD v9 |
