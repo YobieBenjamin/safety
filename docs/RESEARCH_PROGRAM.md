@@ -156,3 +156,10 @@ Announced 2026-09-28 (NVIDIA Developer Blog): OpenShell, an open-source (Apache 
 - **Not supported:** that the telemetry features add value over a standard hidden-state probe (YB-0042 H1: not distinguishable). That internal-state monitoring as a class beats the judge in time (the probe was not in the seed-7 race; on seed 8 neither monitor beat the judge significantly).
 - **Hypothesis only:** the regulator reaches probe-level performance from about 24x less telemetry per token (120 values vs 2,880 per layer).
 - Related work source record: docs/sources/nvidia_open_agent_safety_platform.md.
+
+## Claim status after YB-0045 (2026-10-01; supersedes earlier claim-status sections where they conflict)
+- **Supported (pre-registered, powered, three fresh seeds):** before the answer exists, monitors reading the internal state (regulator, hidden-state probe) raise in-time warnings on substantially more wrong answers than a larger LLM judge: regulator minus judge +0.478 [+0.307, +0.560]; probe minus judge +0.522 [+0.363, +0.606]; holds per seed (post hoc), at equal false alarms, with frozen thresholds and at every checkpoint.
+- **Not supported:** that the telemetry features add value over a standard hidden-state probe (YB-0042, YB-0045). With never-answered episodes as failures the probe is better.
+- **History:** significant in YB-0035, not significant in the underpowered YB-0042, supported in YB-0045.
+- **Scope:** one monitored model, machine-gradable single-answer tasks, four checkpoints up to 384 tokens.
+
