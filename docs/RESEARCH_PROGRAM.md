@@ -183,3 +183,11 @@ Bailey et al., 2024, Obfuscated Activations Bypass LLM Latent-Space Defenses: ac
   the judge (75 vs 28 of 138). The telemetry regulator does not transfer to unseen task types (0.445 [0.392, 0.499]).
 - **Theory and position:** docs/THEORY_AND_POSITION.md (principles with evidence status; biology and the hospital kept as architecture and
   operating method, not as feature claims).
+
+## Claim status after YB-0048 (2026-10-04)
+- **Not supported:** that fusing the four same-stage non-LLM monitors (difficulty, trained text, probe, regulator) beats the best single one
+  (stack minus probe -0.029 [-0.096, +0.044]), or that a transparent NEWS2-style banded score is within 5 points of it (-0.101 [-0.164,
+  +0.015]). The monitors largely catch the same errors.
+- **Descriptive:** the banded score gives a clean graded risk gradient (failure rate 3.6% stable to 66% urgent).
+- **Open:** layering across different stages (pre-answer internal monitor, post-answer review, action hold, human), whose misses may be less
+  correlated.
