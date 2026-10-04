@@ -39,3 +39,9 @@ In-time recall of wrong answers at the tightest threshold with at most 10% of al
 
 ## Run gating
 The confirmatory analysis runs only via make confirmatory (RUN_CONFIRMATORY=1). make experiment, which the publish pipeline calls, exits without analysing, so publishing this plan cannot run the analysis before the timestamp.
+
+## Scoring rule for episodes with no in-time checkpoint
+Episodes that finish before the first checkpoint, or whose checkpoints all miss the deadline, are never alarmed; for AUROC they receive the lowest possible score (ties at the bottom). Added 2026-10-04 after the first dry run failed on infinite scores, before this plan was timestamped.
+
+## Normalisation for the held-out task type (H3)
+The regulator and probe standardise features per (task type, checkpoint). In leave-one-task-out, the held-out type has no training statistics; without a fix its features would enter unscaled, biasing the test against internal state. Rule: for the held-out type, per-(type, checkpoint) means and standard deviations are computed from its derivation-seed episodes without using any labels (available in deployment from unlabelled traffic). Added 2026-10-04 during code review, before this plan was timestamped.

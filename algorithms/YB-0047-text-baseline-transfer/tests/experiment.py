@@ -14,9 +14,12 @@ from sklearn.metrics import roc_auc_score
 COST, T, DRY = 0.005, (48, 96, 192, 384), os.environ.get('DRY_RUN') == '1'
 DERIV = ('2', '3', '4', '5', '6', '7', '8', '10', '11', '12'); TEST = ('9', '13', '14')
 if DRY: DERIV, TEST = ('2', '3', '4', '5', '6', '7', '8'), ('10', '11', '12')
+SMOKE = os.environ.get('SMOKE') == '1'   # fast end-to-end check of every code path: 2 training seeds, 1 eval seed, 150 episodes each; never reads test seeds
+if SMOKE: DRY, DERIV, TEST = True, ('2', '3'), ('10',)
 ld = lambda p: [json.loads(l) for l in gzip.open(p, 'rt')]
 def load_seed(S, off):
     R = [dict(r, idx=off + r['idx']) for r in ld('data/seed%s_LH.jsonl.gz' % S)]
+    if SMOKE: R = R[:150]
     z = np.load('data/layers_LH_seed%s_0.npz' % S); L = {off + int(k[1:]): z[k].astype(np.float32) for k in z.files}
     h = np.load('data/hs_seed%s.npz' % S); H = {}
     for k in h.files:
@@ -29,6 +32,7 @@ def in_time(R, fn, cost):
         V.append(in_time_max([(fn(r, t), float(lat[:t].sum()), cost(r, t), D) for t in checkpoints(r)]))
     return np.array(V)
 def boot_auc(y, s, n=1000, seed=0):
+    s = np.where(np.isfinite(s), s, -1e6)   # episodes with no in-time checkpoint are never alarmed: lowest score (pre-registered rule)
     g = np.random.default_rng(seed); a = []
     for _ in range(n):
         i = g.integers(0, len(y), len(y))
@@ -73,17 +77,23 @@ def main():
     for c in cats:
         tr = [i for i, (r, _) in enumerate(jobs) if r['cat'] != c]; jt = [jobs[i] for i in tr]
         Oc = AbsOrganism().fit_from(X[tr], jt); Pc = Probe(bl, bc).fit(jt, Hd); Tc = TextMonitor(Ct).fit(jt)
+        # label-free normalisation for the unseen type: per-(type, t) feature statistics from its derivation episodes, no labels used
+        hc = [i for i, (r, _) in enumerate(jobs) if r['cat'] == c]; jc = [jobs[i] for i in hc]; kc = [(r['cat'], t) for r, t in jc]
+        norm_used = len(jc) > 0
+        Xp = Pc._design(jc, Hd) if norm_used else None
+        for k in (set(kc) if norm_used else ()):
+            m = np.array([kk == k for kk in kc]); Oc.stats[k] = (X[hc][m].mean(0), X[hc][m].std(0)); Pc.stats[k] = (Xp[m].mean(0), Xp[m].std(0) + 1e-6)
         ii = [i for i, r in enumerate(A) if r['cat'] == c]; sub = [A[i] for i in ii]
         for m, f in (('regulator', lambda r, t: Oc.score(r, L8[r['idx']], t)), ('probe', lambda r, t: Pc.score(r, t, H8)), ('text_trained', lambda r, t: Tc.score(r, t))):
             lo[m][ii] = in_time(sub, f, fixed)
-        yc = y[ii]; detail[c] = dict(episodes=len(ii), wrong=int(yc.sum()))
+        yc = y[ii]; detail[c] = dict(episodes=len(ii), wrong=int(yc.sum()), label_free_normalisation=norm_used, derivation_episodes=len(set(r['idx'] for r, _ in jc)))
         if 10 <= yc.sum() < len(yc):
             detail[c]['heldout_auroc'] = {m: boot_auc(yc, lo[m][ii]) for m in lo}; detail[c]['in_task_auroc'] = {m: boot_auc(yc, V[m][ii]) for m in lo}
     keep = [i for i, r in enumerate(A) if detail[r['cat']]['wrong'] >= 1]
     pooled = {m: boot_auc(y[keep], lo[m][keep]) for m in lo}
     res['H3_pooled_leave_one_task_out_auroc'] = pooled; res['H3_supported_probe'] = bool(pooled['probe'][1] > 0.5)
     res['H3_supported_regulator'] = bool(pooled['regulator'][1] > 0.5); res['S_transfer_by_task'] = detail
-    out = 'docs/dryrun.json' if DRY else 'docs/results.json'
+    out = 'docs/smoke.json' if SMOKE else ('docs/dryrun.json' if DRY else 'docs/results.json')
     json.dump(res, open(out, 'w'), indent=1, default=lambda o: o.item() if hasattr(o, 'item') else str(o))
     print(json.dumps({k: res[k] for k in ('eval_answered', 'eval_wrong', 'text_C', 'H1_probe_minus_text', 'H1_supported', 'H2_regulator_minus_text', 'H2_supported', 'H3_pooled_leave_one_task_out_auroc')}, default=str))
 if __name__ == '__main__': main()
