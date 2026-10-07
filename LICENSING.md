@@ -1,29 +1,42 @@
 # Licensing
 
-Copyright (c) 2026 Yobie Benjamin. All rights not expressly granted are reserved.
-This project is **source-available, not open source**. Two licenses apply, by type of material:
+Source-available, not open source. Copyright (c) 2026 Yobie Benjamin. Software is licensed under the PolyForm Noncommercial License 1.0.0 ([LICENSE.md](https://github.com/YobieBenjamin/safety/blob/main/LICENSE.md)); documentation, data and figures under CC BY-NC 4.0 ([LICENSE-DOCS.txt](https://github.com/YobieBenjamin/safety/blob/main/LICENSE-DOCS.txt)). Attribution is required for any use in whole or in part ([NOTICE](https://github.com/YobieBenjamin/safety/blob/main/NOTICE)); commercial use requires a separate license. See [LICENSING.md](https://github.com/YobieBenjamin/safety/blob/main/LICENSING.md) for scope and contact, and [CITATION.cff](https://github.com/YobieBenjamin/safety/blob/main/CITATION.cff) to cite this work.
 
-| Material | License | File |
+This is the canonical licensing page for every repository published under [github.com/YobieBenjamin](https://github.com/YobieBenjamin): currently [Watermark](https://github.com/YobieBenjamin/Watermark), [safety](https://github.com/YobieBenjamin/safety) and [hardware](https://github.com/YobieBenjamin/hardware-and-silicon). Each repository also carries its own copies of these files and a `CITATION.cff` of its own.
+
+## What is covered by which license
+
+| Part of a repository | License | File |
 |---|---|---|
-| Software: all source code, scripts, build files and tests (e.g. `agr/`, `algorithms/*/src/`, `algorithms/*/tests/`, `algorithms/*/Makefile`, `scripts/`, `sandbox/`, `miner/`, `orchestrator/`, `Makefile`, `publish.sh`, `bootstrap.sh`) | PolyForm Noncommercial License 1.0.0 | [LICENSE.md](LICENSE.md) |
-| Documentation, reports, data, figures and other non-software content (e.g. `docs/`, `algorithms/*/README.md`, `algorithms/*/docs/`, `algorithms/*/data/`, `archive/`, `CORRECTIONS.md`, `LEDGER.md`, `HYPOTHESES.md`) | Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) | [LICENSE-DOCS.txt](LICENSE-DOCS.txt) |
+| Software: all code (`*.py`, `*.sh`, `Makefile`, `pyproject.toml`, `tests/`) | PolyForm Noncommercial License 1.0.0 | [LICENSE.md](https://github.com/YobieBenjamin/safety/blob/main/LICENSE.md) |
+| Documentation, data and figures: README files, docs/, blog/, results/ (reports, plots and JSON), data/ | CC BY-NC 4.0 | [LICENSE-DOCS.txt](https://github.com/YobieBenjamin/safety/blob/main/LICENSE-DOCS.txt) |
 
-**Noncommercial use** (research, education, personal experimentation, evaluation) is permitted under these licenses.
-**Commercial use** of any part, including use in a product or service, requires a separate commercial license.
+Both licenses permit noncommercial use (personal, academic, research, teaching, nonprofit and similar
+purposes as each license defines them), with attribution, and permit changes and redistribution under the
+same terms. Neither permits commercial use. Read the license texts themselves for the exact definitions;
+this page is a map, not a substitute.
 
-**Attribution** is required whenever any part is used, in whole or in part: see [NOTICE](NOTICE). Researchers:
-please cite the work using [CITATION.cff](CITATION.cff).
+## Attribution
 
-**Commercial licensing and permissions:** contact Yobie Benjamin at yobie@ieee.org.
+Every use, in whole or in part, must carry attribution as described in [NOTICE](https://github.com/YobieBenjamin/safety/blob/main/NOTICE): the author's name,
+the repository URL, the version or commit used, and that NOTICE. The easiest way to get it right is to cite
+with the repository's `CITATION.cff` (GitHub renders it as an APA or BibTeX entry under "Cite this repository").
 
-**Patents:** these licenses grant copyright permissions only, except for the limited patent license in PolyForm
-Noncommercial 1.0.0 as stated there. No other rights to any method, apparatus or system described in this
-repository are granted.
+## Commercial use
 
-**Contributions:** see [CONTRIBUTING.md](CONTRIBUTING.md).
+Commercial use of any part of this work — including use inside a product or service, use by or on behalf of a
+for-profit company in its business, paid consulting built on it, and training or evaluating commercial models
+with it — requires a separate written license from the author.
 
-<!-- © 2026 Yobie Benjamin (YB). Autonomic Graph Regulation (AGR). SPDX-License-Identifier: CC-BY-NC-4.0 (see LICENSE-DOCS.txt, NOTICE). Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71 -->
+## Contact
 
-## Provenance
+Yobie Benjamin — via GitHub: https://github.com/YobieBenjamin (open an issue on the repository, or use the
+contact details on that profile).
 
-Every source file carries a copyright and SPDX license header and the project canary `AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71`; every document carries the same notice as an HTML comment. `MANIFEST.sha256` lists the SHA-256 fingerprint of every file (regenerate with `scripts/make_manifest.sh`; verify with `shasum -a 256 -c MANIFEST.sha256`).
+## Scope notes
+
+- The copies here are canonical; a repository's own copies are for convenience and GitHub's license detection. If they ever differ, these govern.
+- Third-party names and marks are their owners' (see NOTICE); nothing here grants rights in them.
+- Earlier copies of these repositories were published under the MIT License. As of 2026-10-07 (version
+  0.1.0) and for all later versions, the terms above apply. Copies obtained under the earlier license
+  remain subject to the terms they were obtained under.

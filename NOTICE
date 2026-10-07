@@ -1,13 +1,27 @@
-Autonomic Graph Regulation (AGR)
-Copyright (c) 2026 Yobie Benjamin. https://github.com/YobieBenjamin
+NOTICE
 
-Required Notice: Copyright Yobie Benjamin (https://github.com/YobieBenjamin). Autonomic Graph Regulation (AGR).
+Copyright (c) 2026 Yobie Benjamin. All rights reserved except as licensed below.
 
-How to attribute. Any use of this work, in whole or in part (code, methods as implemented here, documentation, data
-or figures), must carry the following attribution, visibly and in the accompanying documentation or source:
+This NOTICE applies to every repository published under https://github.com/YobieBenjamin —
+currently Watermark, safety and hardware-and-silicon — unless a repository states otherwise.
 
-  “Based on Autonomic Graph Regulation (AGR) by Yobie Benjamin (https://github.com/YobieBenjamin),
-   used under the PolyForm Noncommercial License 1.0.0 (software) / CC BY-NC 4.0 (documentation and data).”
+  Software (all code: *.py, *.sh, Makefile, pyproject.toml, tests/):
+    PolyForm Noncommercial License 1.0.0 — see LICENSE.md
+    Required Notice: Copyright (c) 2026 Yobie Benjamin (https://github.com/YobieBenjamin)
 
-State whether you modified the material. For academic work, cite as described in CITATION.cff.
-Commercial use requires a separate license: contact yobie@ieee.org.
+  Documentation, data and figures (README files, docs/, blog/, results/ (reports, plots and JSON), data/):
+    Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) — see LICENSE-DOCS.txt
+
+Attribution is required for any use of this work, in whole or in part, including
+excerpts, derived works, benchmarks, talks, papers and products. Attribution must
+include: the author's name (Yobie Benjamin), the repository URL, the version or
+commit used, and a copy of or link to this NOTICE. Cite the work using the
+repository's CITATION.cff.
+
+Commercial use of any part of this work requires a separate written license from
+the author. See LICENSING.md for scope and contact.
+
+The canonical copies of these licensing files for all of the author's repositories
+are kept at https://github.com/YobieBenjamin/safety.
+
+Third-party names: textGrain is OpenAI's; NVIDIA, OpenShell, Sentry, BlueField and DOCA are trademarks of NVIDIA Corporation. The author's work is independent and is not affiliated with, sponsored by or endorsed by OpenAI or NVIDIA.
