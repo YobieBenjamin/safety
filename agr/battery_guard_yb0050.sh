@@ -8,7 +8,8 @@ while pgrep -f agr/yb0050_chain.sh > /dev/null; do
   b=$(pmset -g batt); pct=$(echo "$b" | grep -o '[0-9]*%' | head -1 | tr -d '%')
   if ! echo "$b" | grep -q 'AC Power' && [ "${pct:-100}" -le 12 ]; then
     echo "$(date -u +%H:%M) battery $pct%: stopping YB-0050 cleanly" >> $L
-    pkill -f agr/yb0050_chain.sh; pkill -INT -f selfcons_yb0050.py; pkill -INT -f 'agr/recorder.py 100 800'
+    pkill -f agr/yb0050_chain.sh; pkill -INT -f selfcons_yb0050.py; pkill -INT -f 'agr/recorder.py 100 800'; sleep 20
+    pkill -TERM -f selfcons_yb0050.py; pkill -TERM -f 'agr/recorder.py 100 800'; sleep 10; pkill -KILL -f selfcons_yb0050.py; pkill -KILL -f 'agr/recorder.py 100 800'   # MLX can ignore SIGINT (seen 2026-10-06); recorders resume safely
     for c in $(docker ps -q); do docker inspect --format '{{range .Mounts}}{{.Source}} {{end}}' $c | grep -q YB-0050 && docker kill $c > /dev/null; done
     exit 0
   fi
