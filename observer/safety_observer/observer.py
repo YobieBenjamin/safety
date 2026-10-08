@@ -31,7 +31,7 @@ class SafetyObserver:
         Context is used for scoring only and is not part of the bound subject.
         """
         hits = detect(request["action"], request["params"], request.get("context"))
-        risk, flags, _ = score(hits)
+        risk, flags, families = score(hits)
         issued = time.time() if now is None else now
         payload = {
             "type": "observer-assertion",
@@ -39,6 +39,7 @@ class SafetyObserver:
             "subject": self.subject(request),
             "risk": risk,
             "flags": flags,
+            "families": families,  # per-family strength; gate ignores unknown fields
             "issued_at": issued,
             "expires_at": issued + self.ttl,
         }

@@ -66,3 +66,14 @@ def test_signer_field_must_match_key():
     env = SafetyObserver("obs-main", key).assess(GATE_REQUEST, now=1.0)
     env["signer"] = "00" * 8
     assert not verify_object(env)
+
+
+def test_per_family_scores_are_signed_and_bounded():
+    key = SigningKey.generate()
+    req = {"request_id": "t", "measurement": "00" * 16, "action": "admin.exec",
+           "params": {"cmd": "disable the audit log"}}
+    env = SafetyObserver("obs-main", key).assess(req, now=1.0)
+    fam = env["payload"]["families"]
+    assert fam["oversight_evasion"] >= 0.5
+    assert all(0.0 <= v <= 1.0 for v in fam.values())
+    assert verify_object(env, expected_pub_hex=key.public_raw.hex())
