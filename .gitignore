@@ -39,5 +39,7 @@ algorithms/YB-0049-stage-diverse-layering/data/prefix_judge_abs_*
 algorithms/YB-0050-powered-decider/data/*seed[2-9][_.]*
 algorithms/YB-0050-powered-decider/data/*seed1[0-4][_.]*
 
-# YB-0051 reuses YB-0050 recordings and reviews (seeds 2-26) via local hard links; only exploratory outputs are tracked
-algorithms/YB-0051-low-false-alarm-precision/data/*seed*
+# YB-0051 reuses YB-0050 recordings and reviews (seeds 2-26) via local hard links; new test seeds 27-38 are tracked here
+algorithms/YB-0051-low-false-alarm-precision/data/*seed[2-9][_.]*
+algorithms/YB-0051-low-false-alarm-precision/data/*seed1[0-9][_.]*
+algorithms/YB-0051-low-false-alarm-precision/data/*seed2[0-6][_.]*
