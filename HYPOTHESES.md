@@ -272,3 +272,39 @@ test: in a sandboxed agent task with verifiable outcomes, compare policy-only en
 status: tested 2026-10-01: H1 supported, +0.478 [+0.307, +0.560]
 hypothesis: with training data matched to YB-0035 (about 1,800 episodes per derivation seed) and the false-alarm cap over all correct test episodes (the YB-0035 definition), an internal-state monitor (probe and regulator) catches more wrong answers in time than the LLM judge on a fresh test seed. Pre-register with the population defined identically in prose and code, and a power calculation.
 
+
+## YB-0052 — Observer evaluation set: measured miss and false-alarm rates for the Layer 3 observer
+status: proposed (chip program; see safety-governor/docs/20-experiment-program.md; set to open to mine)
+foundation: the lanes contract (hardware-and-silicon/docs/LANES.md); observer/README.md ("these weights are judgment, not measurement")
+hypothesis: on a labelled set of requests in the gate's typed form (request_id, measurement, action, params, context) with abstract hazard classes and no real hazardous content, including disguised requests a model would answer and benign requests that look alarming, the Layer 3 observer's per-family miss rate at a 10 percent false-alarm budget is below the governor's session hazard budget for at least the exfiltration, weight_exfiltration, oversight_evasion and financial families; the hazard_content family is expected to be the weakest.
+test: build observer/bench/ with the labelled set (pre-registered before scoring; classes abstract; no hazardous text); score with python -m safety_observer assess at thresholds re-set in every bootstrap resample; report miss and false-alarm per family with confidence intervals; compare with a length-only and a keyword-count baseline; the artifact is observer/bench/results.json.
+
+## YB-0053 — Observer independence: do the inputs that defeat the model also defeat the witnesses?
+status: proposed (chip program; set to open to mine)
+foundation: the Independence Principle; YB-0045's recorded episodes; the gate's quorum of observers
+hypothesis: the failures of the model's own refusal, the text-blind regulator (vitals), the Layer 3 observer (request structure) and a Sentry-shaped filter are weakly correlated, so a k-of-n quorum of them has a joint miss rate materially below the best single one; if the failures are strongly correlated, a quorum adds nothing and the chip's value for the knowledge use cases is accountability, not prevention.
+test: on YB-0045's episodes plus the YB-0052 set, record each monitor's verdict per input at matched false-alarm rates; estimate pairwise failure correlation with bootstrap intervals; compute the joint miss rate for every k-of-n over the four monitors; pre-register the threshold for "materially below"; artifact observer/bench/independence.json.
+
+## YB-0054 — Quorum arithmetic for the gate: deriving the observer list and max_risk per hazard class
+status: proposed (chip program; set to open to mine)
+foundation: YB-0052 and YB-0053 measurements; safety-governor policy fields allowed_hazard_classes, min_legibility, hazard_budget, observer sets
+hypothesis: given measured per-observer miss rates and their correlations, there exists for each modelled use case (weapons release, hazardous knowledge, an agent with a plan) an affordable quorum (at most three observers, verdict latency inside the ticket window) whose joint miss rate meets the policy's hazard budget; where none exists, the design must record that use case as accountability-only.
+test: a script that takes YB-0052 and YB-0053 outputs and emits, per hazard class, the k-of-n list and the max_risk ceiling meeting the budget, or "none"; the emitted rows are checked into safety-governor/docs/06 as assumptions-register entries; artifact observer/bench/quorum.json.
+
+## YB-0055 — Chip-visible vitals: an early warning from tier-0 signals the governor can read out of band
+status: proposed (chip program; set to open to mine)
+foundation: the Independence Principle, tier 0; YB-0018 (power alone carries no failure signal); the governor's meter (tokens, cycles, bytes, latency) and BMC telemetry
+hypothesis: a regulator restricted to the signals a rack-tier governor can read with no host cooperation (token rate, per-token latency, cycles, bytes, board power) catches wrong answers before commitment at a matched 10 percent false-alarm rate better than the length and question-type baselines; the prior from YB-0018 is that power contributes nothing, so the test is really of token rate and latency. If the hypothesis fails, the chip's own sensing serves enforcement and accountability only, and every early warning must arrive as a signed verdict from an observer with substrate access.
+test: on the existing recordings (YB-0033 to YB-0045), restrict features to the chip-visible set, train on derivation seeds, test once on a fresh seed under the real-time protocol (no future information, matched false-alarm rate, length and question-type controls); report in-time catches against the baselines; pre-register; artifact algorithms/YB-0055-chip-visible-vitals/docs/results.json.
+
+## YB-0056 — Verdict latency inside the gate's windows
+status: proposed (chip program; set to open to mine)
+foundation: the ticket freshness window (observer_freshness_s) and the governor's release batching window (50 ms, one P-384 signature per window)
+hypothesis: the regulator's and the Layer 3 observer's time-to-verdict distributions fit inside the gate's windows at the modelled load (eight slots per chip, 100-token responses), so that late verdicts (counted, never discarded) are rare enough not to push the release path over the one percent overhead target.
+test: measure time-to-verdict for both monitors on recorded episodes at their real latencies; compare the tail with the windows in safety-governor/govsim/bench.py; report the fraction of late verdicts and the resulting hold time; artifact observer/bench/latency.json.
+
+## YB-0057 — The chip's use cases with the real witness over the lanes contract
+status: proposed (chip program; set to open to mine)
+foundation: safety-governor/docs/17 (the strike, hazard, plot and oversight narrations); the lanes contract; the mapping of the regulator's effectors to the governor's levers (throttle to the compute budget, pause to the hold, require-a-human to the quorum, halt to the loop)
+hypothesis: with the Layer 3 observer substituted for the governor model's stand-in observer, the four narrations end as before (no bad action initiates, every refusal carries the predicted reason code) and no benign step is refused for the wrong reason.
+test: run python -m govsim.cli usecase strike|hazard|plot|oversight --observer lanes against the safety_observer package; diff the printed hops and reason codes against the stand-in run; any changed outcome is reported with its cause; artifact observer/bench/usecases.json.
