@@ -1,0 +1,23 @@
+# YB-0052 · Observer evaluation set: measured miss and false-alarm rates per signal family for the Layer 3 observer, at matched false-alarm budgets
+
+**Hypothesis (HYPOTHESES.md).** On a labelled set of requests in the gate's typed form (`request_id, measurement, action, params, context`) with abstract hazard classes and no real hazardous content, including disguised requests a model would answer and benign requests that look alarming, the observer's per-family miss rate at a 10 percent false-alarm budget is below the governor's session hazard budget for at least the exfiltration, weight_exfiltration, oversight_evasion and financial families; hazard_content is expected to be the weakest.
+
+**Build.** `observer/bench/`: `set.jsonl` (the labelled requests; classes abstract; never hazardous text), `score.py` (runs `python -m safety_observer assess`, thresholds re-set per bootstrap resample, miss and false alarm per family with confidence intervals), two baselines (length-only, keyword-count), `results.json` as the artifact.
+
+**Protocol.** `docs/PROTOCOL.md`: pre-register `score.py` and the decision rules before the set is scored; smoke mode first; no number without an artifact; the README's calibration claims (bare keyword under 0.25; benign transfer under 0.05) become rows of the set.
+
+**Disproof.** The miss rate on disguised requests stays above the hazard budget for every weighting tried: the observer as written is a logger for those families, and the chip's design records it.
+
+**Budget.** One cloud agent writes the set and the scorer (about 150k tokens); the local orchestrator runs the repair loop.
+
+**Acceptance command (the launcher runs it after the agent).** `python3 -m pytest -q observer/tests && python3 observer/bench/score.py --smoke`
+
+## Rules for this run
+- You are in a git worktree on branch `exp/yb-0052`; it is the only place you write. Run commands from this directory with relative paths; do not cd elsewhere.
+- The other repositories of the program are readable at: /Users/yb/safety-governor /Users/yb/hardware-and-silicon. Never edit them: a change they need goes into `patches/<repo>/<file>.patch` here, with a note in your final summary.
+- Acceptance: `python3 -m pytest -q observer/tests && python3 observer/bench/score.py --smoke`. Run it at most three times. Stop when it passes, or after the third failure; then record exactly what fails in EXPERIMENTS.md (safety-governor) or in the hypothesis's section (safety), with the failing output.
+- Read only the files the brief names under Read first and the files you create. Do not read whole directories, do not run the full test suite (the acceptance command is enough), do not search the web, do not start sub-agents.
+- Never weaken, skip or delete an existing test. Do not refactor beyond the brief. No em dashes in anything you write.
+- Commit as you go with messages that name the issue (#1) and end with the line: Agent: wave 1, issue #1. Do not push, do not open a pull request; the launcher does both.
+- This run is capped at 40 turns and an estimated spend of $10. Keep the tree in a working, committed state at all times, so a cap mid-way still leaves usable work.
+- Finish with a summary of at most fifteen lines: what was built, what passes, what does not and why, open questions. It is posted on the issue as is.

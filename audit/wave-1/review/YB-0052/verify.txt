@@ -1,0 +1,3 @@
+YB-0052 exp/yb-0052 (7dff0d2): 8 files, +1602 -0, 2 commits (2 with agent trailers)
+  [block] a file outside the issue's owned paths changed: observer/tests/test_bench.py
+  verdict: 1 blocking finding(s)
