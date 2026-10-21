@@ -182,11 +182,14 @@ def verdicts(res: dict) -> dict:
         else:
             v = "above_budget"
         fam[f] = {"disguised_miss": d["miss"], "ci95": [lo, hi], "verdict": v}
+    sensitivity = {str(b): [f for f in PRIMARY if res["strength"][f]["disguised"]["miss_ci95"][1] < b]
+                   for b in (0.05, 0.10, 0.20)}
     primary_ok = [f for f in PRIMARY if fam[f]["verdict"] == "below_budget"]
     weakest = max(FAMILIES, key=lambda f: res["strength"][f]["all"]["miss"])
     disproved = all(fam[f]["verdict"] == "above_budget" for f in PRIMARY)
     return {
         "miss_budget": MISS_BUDGET,
+        "primary_below_budget_at": sensitivity,  # budget -> primary families whose upper bound is under it
         "families": fam,
         "primary_below_budget": primary_ok,
         "hypothesis_supported": len(primary_ok) == len(PRIMARY),
@@ -203,6 +206,10 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=52)
     ap.add_argument("--deviation", default=None, help="reason, required to overwrite an existing results.json")
     args = ap.parse_args(argv)
+
+    import checks
+    checks.check_set(load_rows())
+    checks.check_scorer()
 
     all_rows = load_rows()
     rows = [r for r in all_rows if r["split"] == "dev" or r["kind"] == "calibration"] if args.smoke else all_rows
@@ -229,10 +236,11 @@ def main(argv=None) -> int:
         "score_py_sha256": sha256(Path(__file__)),
         "calibration_rows": cal,
         "results": res,
-        "decision": verdicts(res),
+        "decision": None if args.smoke else verdicts(res),
     }
     if args.smoke:
-        artifact["note"] = "smoke run on the dev split; exercises every code path; not evidence for the hypothesis"
+        artifact["note"] = ("smoke run on the dev split with 50 resamples; exercises the pipeline end to end; "
+                            "no decision is computed and nothing here is evidence for or against the hypothesis")
     dest.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n")
 
     bad = [c for c in cal if not c["holds"]]
