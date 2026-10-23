@@ -2,18 +2,23 @@
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
 # Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0055: a regulator restricted to tier-0 signals (what a rack-tier governor reads with no host cooperation).
-Standard library only. Statistics follow YB-0035 corrected.py (in-time max, 10 percent cap, threshold-resampling bootstrap).
+Standard library only. Statistics follow YB-0035 corrected.py (in-time max, 10 percent cap, threshold-resampling bootstrap);
+the 10 percent cap is tie-aware: cap_alarm splits the tie at the threshold by a per-episode draw so a control whose score
+takes few distinct values (length, question type) is not forced to zero catches.
 
 Tier-0 view of an episode: the per-token arrival latencies (token rate, per-token latency, elapsed time) and the token count
-(bytes are a function of the token count at this tier). Board power is part of the tier but is null in every existing
-recording, so it is reported as not testable. Cycles are not recorded; wall time is the proxy. Everything else in a recording
-(text, entropy, p_top1, margin, toks, final, truth, correct) is dropped by chip_view and never reaches a feature.'''
+(bytes are a function of the token count at this tier). Board power is part of the tier but is not recorded in the analysed
+fields, so it is reported as not testable here (whether it is null in the corpus is a descriptive check, not this result).
+Cycles are not recorded; wall time is the proxy. Everything else in a recording
+(text, entropy, p_top1, margin, toks, final, truth, correct) is dropped by project, at the load boundary in
+src/recordings.load_seed, and never reaches a feature.'''
 import math, random
 
 T = (48, 96, 192, 384)
 CAP, COST = 0.10, 0.005
 CHIP_FIELDS = ('idx', 'seed', 'latency', 'power')            # the observable stream
 SCORING_FIELDS = ('answered', 'correct', 'final_start', 'cat')  # used only to score and to build the controls, never as features
+ALLOWED = CHIP_FIELDS + SCORING_FIELDS                        # the fields that may enter the analysis
 FEATURES = ('log_ttft', 'mean_log_lat', 'sd_log_lat', 'recent_vs_mean', 'slope', 'stall_frac', 'max_vs_median', 'log_elapsed')
 GROUPS = {'full': FEATURES, 'level': ('log_ttft', 'mean_log_lat', 'sd_log_lat', 'log_elapsed'),
           'shape': ('recent_vs_mean', 'slope', 'stall_frac', 'max_vs_median')}
@@ -21,6 +26,14 @@ GROUPS = {'full': FEATURES, 'level': ('log_ttft', 'mean_log_lat', 'sd_log_lat', 
 def chip_view(r):
     '''The tier-0 observable of an episode: only the keys in CHIP_FIELDS.'''
     return {k: r.get(k) for k in CHIP_FIELDS}
+
+def project(r):
+    '''The tier-0 fields a recording carries into the analysis: the observable stream (CHIP_FIELDS) plus
+    the scoring fields (SCORING_FIELDS) used only to score and to build the controls. Everything else in
+    the recording (text, entropy, p_top1, margin, toks, final, truth) is dropped here, at the load
+    boundary, so it never reaches a feature. This is the enforcement behind the "tier-0 only" claim;
+    src/recordings.load_seed projects every recording through it.'''
+    return {k: r.get(k) for k in ALLOWED}
 
 def checkpoints(r): return [t for t in T if t < r['final_start']]
 
@@ -92,6 +105,33 @@ def cap_threshold(v_correct, cap=CAP):
     s = sorted(v_correct, reverse=True); n = len(s); k = int(math.floor(cap * n + 1e-12))
     return s[k] if k < n else -math.inf
 
+def cap_alarm(V, y, cap=CAP, seed=None):
+    '''Alarm the top-`cap` fraction of the correct (y==0) episodes by score, with the tie at the
+    threshold split by a per-episode draw. A control whose score takes few distinct values (the length
+    and question-type baselines) would otherwise catch 0 by construction: with a strict
+    '> cap_threshold' the threshold lands on a value that more than the cap fraction of the correct
+    share, so nothing scores above it. Splitting the tie (reproducibly, by seed) lets the control
+    reach the cap without exceeding it. The false-alarm rate is then floor(cap*n)/n, which is <= cap.
+    seed=None breaks ties by index (the deterministic point estimate); a fresh seed is used per
+    bootstrap resample.'''
+    n = len(V); f = [False] * n
+    neg = [i for i, yy in enumerate(y) if yy == 0]
+    if not neg: return f
+    thr = cap_threshold([V[i] for i in neg], cap)
+    g = None if seed is None else random.Random(seed)
+    keys = [i if g is None else g.random() for i in range(n)]
+    over = [i for i in neg if V[i] > thr]
+    tied = [i for i in neg if V[i] == thr]
+    budget = int(math.floor(cap * len(neg) + 1e-12)) - len(over)
+    if budget > 0 and tied:
+        cut = max(sorted((keys[i] for i in tied))[:budget])
+        for i in range(n):
+            if V[i] > thr or (V[i] == thr and keys[i] <= cut): f[i] = True
+    else:
+        for i in range(n):
+            if V[i] > thr: f[i] = True
+    return f
+
 def in_time(R, fn, cost):
     V = []
     for r in R:
@@ -102,16 +142,16 @@ def in_time(R, fn, cost):
     return V
 
 def evaluate(V, y, mon):
-    thr = cap_threshold([v for v, yy in zip(V, y) if yy == 0]); f = [v > thr for v in V]
+    thr = cap_threshold([v for v, yy in zip(V, y) if yy == 0]); f = cap_alarm(V, y, CAP, seed=0)
     w = [i for i, yy in enumerate(y) if yy == 1]; c = [i for i, yy in enumerate(y) if yy == 0]
     mc = [i for i in c if mon[i]]
     return dict(threshold=thr, caught=sum(f[i] for i in w), wrong=len(w), recall=sum(f[i] for i in w) / len(w) if w else None,
                 fpr=sum(f[i] for i in c) / len(c), fpr_monitorable=sum(f[i] for i in mc) / len(mc) if mc else None,
                 recall_monitorable=(lambda mw: sum(f[i] for i in mw) / len(mw) if mw else None)([i for i in w if mon[i]]))
 
-def recall_at_cap(V, y):
-    thr = cap_threshold([v for v, yy in zip(V, y) if yy == 0]); w = [v for v, yy in zip(V, y) if yy == 1]
-    return sum(v > thr for v in w) / len(w)
+def recall_at_cap(V, y, seed=0):
+    f = cap_alarm(V, y, CAP, seed=seed); w = [i for i, yy in enumerate(y) if yy == 1]
+    return sum(f[i] for i in w) / len(w) if w else None
 
 def boot_diff(Va, Vb, y, n=1000, seed=0):
     '''Resample all episodes, reset both thresholds on each resample's correct episodes, recall difference on its wrong ones.'''
@@ -119,7 +159,8 @@ def boot_diff(Va, Vb, y, n=1000, seed=0):
     for _ in range(n):
         i = [g.randrange(N) for _ in range(N)]; yy = [y[k] for k in i]
         if sum(yy) == 0 or sum(yy) == N: continue
-        d.append(recall_at_cap([Va[k] for k in i], yy) - recall_at_cap([Vb[k] for k in i], yy))
+        s = g.getrandbits(32)
+        d.append(recall_at_cap([Va[k] for k in i], yy, seed=s) - recall_at_cap([Vb[k] for k in i], yy, seed=s))
     d.sort(); q = lambda p: d[min(len(d) - 1, max(0, int(p * len(d))))]
     return [round(recall_at_cap(Va, y) - recall_at_cap(Vb, y), 4), round(q(0.025), 4), round(q(0.975), 4)]
 

@@ -1,7 +1,12 @@
 # YB-0055 pre-registration: chip-visible vitals
 
-**Status:** code and dry run written before any test seed is scored. Timestamp with `scripts/timestamp_prereg.sh
-algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md` and commit the proofs before running `python3 agr/bench/tier0_vitals.py --run`.
+**Status:** the pre-registered code and the synthetic dry run are below; no test seed has been *scored* (no model fit on, and no
+threshold or hypothesis evaluated from, a test seed). Before this record, `tests/inspect_seeds.py` was run once for a *descriptive*
+look at the recordings: it prints wrong-answer counts and field availability for whatever seeds are passed, which may include the test
+seeds. That is a peek at the labels only; it fits no model, computes no score, and the design does not depend on those counts (see
+Power). Timestamp with `scripts/timestamp_prereg.sh
+algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md` and commit the proofs before running
+`python3 agr/bench/tier0_vitals.py --run` (needs network + a `.venv/ots`; not run from this agent).
 
 ## Question
 Can a regulator restricted to signals a rack-tier governor reads with no host cooperation catch wrong answers before commitment, at a
@@ -9,10 +14,13 @@ matched 10 percent false-alarm rate, better than the length and question-type ba
 
 ## Tier-0 view
 Allowed: the per-token arrival latencies of the stream (token rate, per-token latency, elapsed time) and the token count (bytes are a
-function of it at this tier). Board power is in the tier but is null in every existing recording, so it cannot be tested here and is
-reported as such; the YB-0018 prior (power carries nothing) is therefore neither confirmed nor contradicted by this run.
-Cycles are not recorded; wall time stands in for them. Dropped before any feature: text, entropy, p_top1, margin, toks, final, truth,
-correct. `final_start`, `correct`, `answered` and `cat` are used only to score and to build the controls, never as features.
+function of it at this tier). Board power is in the tier but is not recorded in the analysed fields, so it cannot be tested here and is
+reported as such (whether it is null across the corpus is a descriptive check, not this result); the YB-0018 prior (power carries
+nothing) is therefore neither confirmed nor contradicted by this run.
+Cycles are not recorded; wall time stands in for them. Dropped at the load boundary, by `vitals_tier0.project` in
+`src/recordings.load_seed`, before any feature: text, entropy, p_top1, margin, toks, final, truth. `final_start`, `correct`,
+`answered` and `cat` (the scoring fields) are used only to score and to build the controls, never as features; the unit test
+`tests/test_core.py::test_project_drops_content` and the smoke test check the projection drops the content fields.
 
 ## Features (at checkpoint t in 48, 96, 192, 384, t before the final answer starts; each uses latency[:t] only)
 log time to first token; mean and sd of log decode latency; log of recent (last 16 tokens) over prefix mean latency; slope of log
@@ -23,7 +31,12 @@ Ablations: `level` (TTFT, mean, sd, elapsed) and `shape` (recent, slope, stall, 
 
 ## Data
 Derivation: seeds 2 to 14 (the recordings of YB-0033 to YB-0045). **Primary test: seed 38**, scored once. **Secondary (powered
-check, same frozen model, reported separately, never changes the primary verdict): seeds 27 to 37.** Seeds 15 to 26 are unused.
+check, same frozen model, reported separately, never changes the primary verdict): seeds 27 to 37.**
+The recorded corpus is seeds 2 to 38; per the seed-to-directory map (`src/recordings.HOME`) these are the recordings of YB-0042
+(2,3,4,8), YB-0045 (5-14), YB-0050 (15-26) and YB-0051 (27-38). None is fresh across the chip program, so "fresh" here means *held
+out from YB-0055's own model selection* (only the derivation seeds 2-14 select the model and threshold; 15-38 are untouched by it).
+Because seeds 27-38 were already the test seeds of YB-0051, this run is *corroboration* of the YB-0051 result on the same held-out
+seeds, not a fresh confirmation; that is stated in the verdict, not hidden.
 
 ## Real-time protocol (YB-0035 definitions, unchanged)
 A check at t is in time if elapsed(t) + 0.005 s is at most the time the final answer starts; an episode's score is the maximum over its in-time
@@ -38,9 +51,12 @@ Secondary: same contrasts on seeds 27 to 37 pooled; vitals minus level and shape
 monitorable episodes; frozen derivation threshold (out-of-fold, 10 percent cap); per-checkpoint AUROC of vitals and type with CIs.
 
 ## Power
-Primary seed has about 43 wrong answers, so a 95 percent half-width of roughly 0.2 on recall differences; a modest advantage
-will not be resolved on one seed. The pooled secondary has about 500 wrong answers and is the informative check; if it is clearly positive
-while the primary is not, that is reported as underpowered primary, not as support.
+The exact wrong-answer counts are not pre-registered here: they were not fixed at write time and are measured by
+`tests/inspect_seeds.py` at registration (a descriptive count; see Status). The design does not depend on the numbers: a single
+primary seed carries on the order of tens of wrong answers, so a 95 percent half-width of a recall difference is large (order 0.2)
+and a modest advantage is unlikely to resolve on one seed. The informative check is the pooled secondary (seeds 27 to 37, an order of
+magnitude more wrong answers); if it is clearly positive while the primary is not, that is reported as underpowered primary, not as
+support.
 
 ## Pre-declared consequences
 - Supported: tier-0 token rate and latency carry an in-time early warning beyond length and type; the chip may use them as a coarse alarm.

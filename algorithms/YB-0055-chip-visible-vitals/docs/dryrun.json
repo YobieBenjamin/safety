@@ -22,7 +22,7 @@
   "int192": -7.4972,
   "int384": -8.6572
  },
- "power": "null in every recording (not testable here)",
+ "power": "not recorded in the analysed fields; not testable here (a descriptive check, not this result)",
  "tests": {
   "primary": {
    "answered": 600,
@@ -59,32 +59,32 @@
     },
     "length": {
      "threshold": 384.0,
-     "caught": 0,
+     "caught": 8,
      "wrong": 93,
-     "recall": 0.0,
-     "fpr": 0.0,
-     "fpr_monitorable": 0.0,
-     "recall_monitorable": 0.0
+     "recall": 0.086,
+     "fpr": 0.0986,
+     "fpr_monitorable": 0.1053,
+     "recall_monitorable": 0.093
     },
     "type": {
      "threshold": 0.119,
-     "caught": 0,
+     "caught": 11,
      "wrong": 93,
-     "recall": 0.0,
-     "fpr": 0.0,
-     "fpr_monitorable": 0.0,
-     "recall_monitorable": 0.0
+     "recall": 0.1183,
+     "fpr": 0.0986,
+     "fpr_monitorable": 0.1053,
+     "recall_monitorable": 0.1279
     }
    },
    "H_vitals_minus_length": [
-    0.9247,
-    0.8696,
-    0.9756
+    0.8387,
+    0.7632,
+    0.9135
    ],
    "H_vitals_minus_type": [
-    0.9247,
-    0.8696,
-    0.9756
+    0.8065,
+    0.75,
+    0.9
    ],
    "H_supported": true,
    "S_full_minus_level": [
@@ -101,8 +101,8 @@
     "full": 86,
     "level": 86,
     "shape": 86,
-    "length": 0,
-    "type": 0
+    "length": 9,
+    "type": 12
    },
    "S_frozen_derivation_threshold": {
     "threshold": -5.607557229734349,

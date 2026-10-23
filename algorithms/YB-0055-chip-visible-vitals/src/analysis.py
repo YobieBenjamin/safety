@@ -3,8 +3,8 @@
 # Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
 '''YB-0055 pre-registered analysis (see docs/PREREGISTRATION.md). analyse() is shared by the real run, the dry run and the smoke test.'''
 import time
-from vitals_tier0 import (T, COST, GROUPS, Vitals, make_jobs, features, checkpoints, in_time, evaluate, boot_diff, cap_threshold,
-                          auroc, boot_auc)
+from vitals_tier0 import (T, COST, CAP, GROUPS, Vitals, make_jobs, features, checkpoints, in_time, evaluate, boot_diff,
+                          cap_threshold, cap_alarm, auroc, boot_auc)
 
 LAMS = (1.0, 10.0, 100.0)
 FOLDS = 5
@@ -34,7 +34,7 @@ def analyse(deriv, tests, boots=1000, log=print):
     frozen = cap_threshold([v for v, r in zip(Vd, Rd) if r['correct']])
     res = dict(lam=lam, lam_cv_auroc={str(l): round(v[1], 4) for l, v in cvs.items()}, derivation_answered=len(Rd), derivation_rows=len(jobs),
                derivation_wrong=sum(wrong_of(r) for r in Rd), weights_full=dict(zip(list(GROUPS['full']) + ['int%d' % t for t in T], [round(w, 4) for w in models['full'].w])),
-               power='null in every recording (not testable here)', tests={})
+               power='not recorded in the analysed fields; not testable here (a descriptive check, not this result)', tests={})
     for name, R in tests.items():
         A = [r for r in R if r['answered']]; y = [wrong_of(r) for r in A]; mon = [len(checkpoints(r)) > 0 for r in A]
         V = {g: in_time(A, lambda r, t, m=models[g]: m.score(features(r['latency'], t), t), lambda r, t: COST) for g in GROUPS}
@@ -44,9 +44,9 @@ def analyse(deriv, tests, boots=1000, log=print):
         out['H_vitals_minus_length'] = boot_diff(V['full'], V['length'], y, boots); out['H_vitals_minus_type'] = boot_diff(V['full'], V['type'], y, boots)
         out['H_supported'] = bool(out['H_vitals_minus_length'][1] > 0 and out['H_vitals_minus_type'][1] > 0)
         out['S_full_minus_level'] = boot_diff(V['full'], V['level'], y, boots); out['S_full_minus_shape'] = boot_diff(V['full'], V['shape'], y, boots)
-        ym = [yy for yy, m in zip(y, mon) if m]
-        out['S_equal_fpr_monitorable_caught'] = {m: sum(1 for v, yy in zip([v for v, mm in zip(vv, mon) if mm], ym)
-                                                       if yy == 1 and v > cap_threshold([a for a, b in zip([v for v, mm in zip(vv, mon) if mm], ym) if b == 0])) for m, vv in V.items()}
+        mon_idx = [i for i, m in enumerate(mon) if m]; mony = [y[i] for i in mon_idx]
+        out['S_equal_fpr_monitorable_caught'] = {m: sum(1 for f, yy in zip(cap_alarm([vv[i] for i in mon_idx], mony, CAP, seed=0), mony)
+                                                            if f and yy == 1) for m, vv in V.items()}
         f = [v > frozen for v in V['full']]
         out['S_frozen_derivation_threshold'] = dict(threshold=frozen, caught=sum(1 for a, yy in zip(f, y) if a and yy), fpr=round(sum(1 for a, yy in zip(f, y) if a and not yy) / max(1, y.count(0)), 4))
         pc = {}
