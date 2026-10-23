@@ -1,0 +1,31 @@
+{
+ "id": "YB-0053",
+ "branch": "exp/yb-0053",
+ "base": "main",
+ "head": "6c8c79d",
+ "commits": 2,
+ "agent_trailers": 2,
+ "files": 3,
+ "added": 450,
+ "removed": 0,
+ "ok": false,
+ "findings": [
+  {
+   "severity": "block",
+   "finding": "a file outside the issue's owned paths changed",
+   "where": "observer/tests/test_independence.py"
+  }
+ ],
+ "runs": {
+  "suite": {
+   "command": "python3 -m pytest -x observer/tests",
+   "exit": 0,
+   "tail": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0\nrootdir: /private/var/folders/30/33qb062d34q5p1j5tycqcyww0000gn/T/verify-0nor7gh7/observer\nconfigfile: pyproject.toml\ncollected 47 items\n\nobserver/tests/test_contract.py .......                                  [ 14%]\nobserver/tests/test_independence.py ..............                       [ 44%]\nobserver/tests/test_signals.py ..........................                [100%]\n\n============================== 47 passed in 1.93s ==============================\n"
+  },
+  "acceptance": {
+   "command": "python3 -m pytest -q observer/tests && python3 observer/bench/independence.py --smoke",
+   "exit": 0,
+   "tail": "...............................................                          [100%]\n47 passed in 1.92s\nindependent: best single model_refusal miss 0.350, best quorum 3-of-4 miss 0.083, mean phi -0.009, quorum_helps=True\ncommon_cause: best single model_refusal miss 0.413, best quorum 2-of-4 miss 0.350, mean phi 0.738, quorum_helps=False\nsmoke ok\n"
+  }
+ }
+}

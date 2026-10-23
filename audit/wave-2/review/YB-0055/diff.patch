@@ -1,0 +1,758 @@
+diff --git a/agr/bench/tier0_vitals.py b/agr/bench/tier0_vitals.py
+new file mode 100644
+index 0000000..5b12883
+--- /dev/null
++++ b/agr/bench/tier0_vitals.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
++# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
++# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
++'''YB-0055 entry point. --smoke: synthetic episodes, checks the invariants (no future information, tier-0 view only, 10 percent cap),
++seconds. --dry: the full pipeline on synthetic data, writes docs/dryrun.json. --run: the pre-registered single run on the recordings,
++writes docs/results.json and refuses to run twice. See algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md.'''
++import json, os, sys, subprocess, types
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
++EXP = os.path.join(ROOT, 'algorithms', 'YB-0055-chip-visible-vitals')
++PKG = 'algorithms/YB-0055-chip-visible-vitals'
++
++def _load(name, rel):
++    '''Load an experiment module from the checkout, or from the committed tree when sparse-checkout or
++    skip-worktree has hidden it (as src/recordings.py does for the data). The module is registered in
++    sys.modules before its source runs, so its cross-imports (analysis imports vitals_tier0) resolve.
++    This is what makes the acceptance command reproduce in a clean checkout of the branch.'''
++    if name in sys.modules:
++        return sys.modules[name]
++    p = os.path.join(EXP, rel)
++    if os.path.exists(p):
++        src = open(p).read()
++    else:
++        src = subprocess.run(['git', '-C', ROOT, 'show', 'HEAD:' + PKG + '/' + rel],
++                             check=True, capture_output=True).stdout.decode('utf-8')
++    mod = types.ModuleType(name); mod.__file__ = p
++    sys.modules[name] = mod
++    exec(compile(src, p, 'exec'), mod.__dict__)
++    return mod
++
++sys.path.insert(0, os.path.join(EXP, 'src'))   # the disk case; _load still works when the dir is absent
++V = _load('vitals_tier0', 'src/vitals_tier0.py')
++analyse = _load('analysis', 'src/analysis.py').analyse
++
++DERIV = tuple(range(2, 15))                 # seeds recorded for YB-0033 to YB-0045
++PRIMARY = 38                                # held out from this experiment's model selection (not fresh across the program: YB-0051 test seed), tested once
++SECONDARY = tuple(range(27, 38))            # powered check with the frozen model, reported separately
++
++def smoke():
++    R = V.synth(160, 1)
++    # 1. the tier-0 view carries nothing but the observable stream
++    assert set(V.chip_view(R[0])) == set(V.CHIP_FIELDS), V.chip_view(R[0]).keys()
++    # 2. no future information: a score at checkpoint t must not change when latencies after t change
++    r = next(r for r in R if V.checkpoints(r)); t = V.checkpoints(r)[0]
++    r2 = dict(r, latency=r['latency'][:t] + [9.9] * (len(r['latency']) - t))
++    assert V.features(r['latency'], t) == V.features(r2['latency'], t), 'features read past the checkpoint'
++    # 3. the load boundary projects to the tier-0 fields: secret fields never reach the analysis
++    full = dict(R[0], text='secret', entropy=[0.1], p_top1=0.9, margin=0.2, toks=[1], final='x', truth='y')
++    for k in ('text', 'entropy', 'p_top1', 'margin', 'toks', 'final', 'truth'):
++        assert k not in V.project(full), 'secret field %s survived the projection' % k
++    assert set(V.project(full)) <= set(V.CHIP_FIELDS + V.SCORING_FIELDS), V.project(full).keys()
++    # 4. the matched false-alarm cap holds and the pipeline runs end to end
++    res = analyse(R, {'smoke_test': V.synth(160, 2)}, boots=40, log=lambda *a: None)
++    s = res['tests']['smoke_test']
++    for m in s['monitors'].values():
++        assert m['fpr'] <= V.CAP + 1e-9, m
++    assert s['monitors']['full']['caught'] >= 0 and 'H_vitals_minus_length' in s
++    # 4. the experiment's own unit tests run as part of the smoke (the acceptance command otherwise never reaches them)
++    tp = os.path.join(EXP, 'tests', 'test_core.py')
++    if os.path.exists(tp):
++        import pytest
++        assert pytest.main(['-q', '-p', 'no:cacheprovider', tp]) == 0, 'tests/test_core.py failed'
++    print(json.dumps(dict(smoke='ok', vitals_caught=s['monitors']['full']['caught'], length_caught=s['monitors']['length']['caught'],
++                          wrong=s['wrong'], fpr_full=s['monitors']['full']['fpr'])))
++
++def dry():
++    res = analyse(V.synth(1500, 1) + V.synth(1500, 3), {'primary': V.synth(600, 2)}, boots=200)
++    json.dump(dict(res, dry_run=True), open(os.path.join(EXP, 'docs', 'dryrun.json'), 'w'), indent=1)
++
++def run():
++    load_seed = _load('recordings', 'src/recordings.py').load_seed
++    out = os.path.join(EXP, 'docs', 'results.json')
++    if os.path.exists(out): sys.exit('docs/results.json exists: the pre-registered test is run once')
++    deriv = [r for s in DERIV for r in load_seed(s)]
++    tests = {'primary_seed%d' % PRIMARY: load_seed(PRIMARY), 'secondary_seeds_%d_%d' % (SECONDARY[0], SECONDARY[-1]): [r for s in SECONDARY for r in load_seed(s)]}
++    res = analyse(deriv, tests, boots=1000)
++    res.update(dry_run=False, derivation_seeds=list(DERIV), primary_seed=PRIMARY, secondary_seeds=list(SECONDARY))
++    json.dump(res, open(out, 'w'), indent=1)
++    print(json.dumps({k: v['H_supported'] for k, v in res['tests'].items()}))
++
++if __name__ == '__main__':
++    a = sys.argv[1:]
++    if '--smoke' in a: smoke()
++    elif '--dry' in a: dry()
++    elif '--run' in a: run()
++    else: sys.exit(__doc__)
+diff --git a/algorithms/YB-0055-chip-visible-vitals/README.md b/algorithms/YB-0055-chip-visible-vitals/README.md
+new file mode 100644
+index 0000000..f67b487
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/README.md
+@@ -0,0 +1,9 @@
++# YB-0055 · Chip-visible vitals
++
++**Status:** code and pre-registration written, NOT yet timestamped and not run on the test seeds (timestamping needs network and is a local step). Design in docs/PREREGISTRATION.md; synthetic dry run in docs/dryrun.json.
++**Run (local, once):** `python3 agr/bench/tier0_vitals.py --run` writes docs/results.json and refuses to run twice.
++**Smoke:** `python3 agr/bench/tier0_vitals.py --smoke`. Unit tests: `python3 -m pytest -q algorithms/YB-0055-chip-visible-vitals/tests`.
++
++Standard library only (the project venv has no numpy). Recordings are read from the checkout or, when hidden by skip-worktree, from
++`git show HEAD:<path>` (src/recordings.py). Layout: src/vitals_tier0.py (features, model, statistics), src/analysis.py (pipeline),
++agr/bench/tier0_vitals.py (entry point).
+diff --git a/algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md b/algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md
+new file mode 100644
+index 0000000..56bdae7
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md
+@@ -0,0 +1,65 @@
++# YB-0055 pre-registration: chip-visible vitals
++
++**Status:** the pre-registered code and the synthetic dry run are below; no test seed has been *scored* (no model fit on, and no
++threshold or hypothesis evaluated from, a test seed). Before this record, `tests/inspect_seeds.py` was run once for a *descriptive*
++look at the recordings: it prints wrong-answer counts and field availability for whatever seeds are passed, which may include the test
++seeds. That is a peek at the labels only; it fits no model, computes no score, and the design does not depend on those counts (see
++Power). Timestamp with `scripts/timestamp_prereg.sh
++algorithms/YB-0055-chip-visible-vitals/docs/PREREGISTRATION.md` and commit the proofs before running
++`python3 agr/bench/tier0_vitals.py --run` (needs network + a `.venv/ots`; not run from this agent).
++
++## Question
++Can a regulator restricted to signals a rack-tier governor reads with no host cooperation catch wrong answers before commitment, at a
++matched 10 percent false-alarm rate, better than the length and question-type baselines?
++
++## Tier-0 view
++Allowed: the per-token arrival latencies of the stream (token rate, per-token latency, elapsed time) and the token count (bytes are a
++function of it at this tier). Board power is in the tier but is not recorded in the analysed fields, so it cannot be tested here and is
++reported as such (whether it is null across the corpus is a descriptive check, not this result); the YB-0018 prior (power carries
++nothing) is therefore neither confirmed nor contradicted by this run.
++Cycles are not recorded; wall time stands in for them. Dropped at the load boundary, by `vitals_tier0.project` in
++`src/recordings.load_seed`, before any feature: text, entropy, p_top1, margin, toks, final, truth. `final_start`, `correct`,
++`answered` and `cat` (the scoring fields) are used only to score and to build the controls, never as features; the unit test
++`tests/test_core.py::test_project_drops_content` and the smoke test check the projection drops the content fields.
++
++## Features (at checkpoint t in 48, 96, 192, 384, t before the final answer starts; each uses latency[:t] only)
++log time to first token; mean and sd of log decode latency; log of recent (last 16 tokens) over prefix mean latency; slope of log
++latency; fraction of tokens slower than 1.5 times the median; log of max over median latency; log elapsed time.
++Model: pooled ridge logistic regression, features standardised per checkpoint on derivation rows, one intercept per checkpoint.
++Ridge strength chosen from 1, 10, 100 by 5-fold episode-grouped cross-validated AUROC on derivation only.
++Ablations: `level` (TTFT, mean, sd, elapsed) and `shape` (recent, slope, stall, max).
++
++## Data
++Derivation: seeds 2 to 14 (the recordings of YB-0033 to YB-0045). **Primary test: seed 38**, scored once. **Secondary (powered
++check, same frozen model, reported separately, never changes the primary verdict): seeds 27 to 37.**
++The recorded corpus is seeds 2 to 38; per the seed-to-directory map (`src/recordings.HOME`) these are the recordings of YB-0042
++(2,3,4,8), YB-0045 (5-14), YB-0050 (15-26) and YB-0051 (27-38). None is fresh across the chip program, so "fresh" here means *held
++out from YB-0055's own model selection* (only the derivation seeds 2-14 select the model and threshold; 15-38 are untouched by it).
++Because seeds 27-38 were already the test seeds of YB-0051, this run is *corroboration* of the YB-0051 result on the same held-out
++seeds, not a fresh confirmation; that is stated in the verdict, not hidden.
++
++## Real-time protocol (YB-0035 definitions, unchanged)
++A check at t is in time if elapsed(t) + 0.005 s is at most the time the final answer starts; an episode's score is the maximum over its in-time
++checks (-inf if none). Population: all answered test episodes; episodes finishing before t = 48 stay in and can never be alarmed. The
++threshold per monitor is the tightest with at most 10 percent of all correct answered test episodes alarmed. Baselines: length (score t,
++cost 0) and question type (derivation wrong-rate of the category, cost 0).
++
++## Hypothesis and decision
++H: vitals minus length and vitals minus type, in-time recall at the matched 10 percent rate (threshold-resampling bootstrap, 1,000
++resamples, 95 percent CI). **Supported iff both lower bounds exceed 0 on the primary seed.** Otherwise not supported.
++Secondary: same contrasts on seeds 27 to 37 pooled; vitals minus level and shape ablations; caught counts at equal false alarms among
++monitorable episodes; frozen derivation threshold (out-of-fold, 10 percent cap); per-checkpoint AUROC of vitals and type with CIs.
++
++## Power
++The exact wrong-answer counts are not pre-registered here: they were not fixed at write time and are measured by
++`tests/inspect_seeds.py` at registration (a descriptive count; see Status). The design does not depend on the numbers: a single
++primary seed carries on the order of tens of wrong answers, so a 95 percent half-width of a recall difference is large (order 0.2)
++and a modest advantage is unlikely to resolve on one seed. The informative check is the pooled secondary (seeds 27 to 37, an order of
++magnitude more wrong answers); if it is clearly positive while the primary is not, that is reported as underpowered primary, not as
++support.
++
++## Pre-declared consequences
++- Supported: tier-0 token rate and latency carry an in-time early warning beyond length and type; the chip may use them as a coarse alarm.
++- Not supported: the chip's own sensing serves enforcement and accountability only; every early warning arrives as a signed verdict from
++  an observer with substrate access, and the chip design says so.
++- No re-run of the test analysis except after a crash with no output seen (logged as a deviation).
+diff --git a/algorithms/YB-0055-chip-visible-vitals/docs/dryrun.json b/algorithms/YB-0055-chip-visible-vitals/docs/dryrun.json
+new file mode 100644
+index 0000000..0ee49fd
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/docs/dryrun.json
+@@ -0,0 +1,181 @@
++{
++ "lam": 1.0,
++ "lam_cv_auroc": {
++  "1.0": 1.0,
++  "10.0": 1.0,
++  "100.0": 0.9998
++ },
++ "derivation_answered": 3000,
++ "derivation_rows": 8203,
++ "derivation_wrong": 346,
++ "weights_full": {
++  "log_ttft": 0.0,
++  "mean_log_lat": 4.818,
++  "sd_log_lat": -0.1369,
++  "recent_vs_mean": -0.0833,
++  "slope": -0.0069,
++  "stall_frac": -2.3155,
++  "max_vs_median": 1.0329,
++  "log_elapsed": 3.1459,
++  "int48": -6.7028,
++  "int96": -6.7637,
++  "int192": -7.4972,
++  "int384": -8.6572
++ },
++ "power": "not recorded in the analysed fields; not testable here (a descriptive check, not this result)",
++ "tests": {
++  "primary": {
++   "answered": 600,
++   "wrong": 93,
++   "monitorable": 561,
++   "short_correct_included": 32,
++   "monitors": {
++    "full": {
++     "threshold": -5.6122,
++     "caught": 86,
++     "wrong": 93,
++     "recall": 0.9247,
++     "fpr": 0.0986,
++     "fpr_monitorable": 0.1053,
++     "recall_monitorable": 1.0
++    },
++    "level": {
++     "threshold": -5.6357,
++     "caught": 86,
++     "wrong": 93,
++     "recall": 0.9247,
++     "fpr": 0.0986,
++     "fpr_monitorable": 0.1053,
++     "recall_monitorable": 1.0
++    },
++    "shape": {
++     "threshold": -2.1595,
++     "caught": 86,
++     "wrong": 93,
++     "recall": 0.9247,
++     "fpr": 0.0986,
++     "fpr_monitorable": 0.1053,
++     "recall_monitorable": 1.0
++    },
++    "length": {
++     "threshold": 384.0,
++     "caught": 8,
++     "wrong": 93,
++     "recall": 0.086,
++     "fpr": 0.0986,
++     "fpr_monitorable": 0.1053,
++     "recall_monitorable": 0.093
++    },
++    "type": {
++     "threshold": 0.119,
++     "caught": 11,
++     "wrong": 93,
++     "recall": 0.1183,
++     "fpr": 0.0986,
++     "fpr_monitorable": 0.1053,
++     "recall_monitorable": 0.1279
++    }
++   },
++   "H_vitals_minus_length": [
++    0.8387,
++    0.7632,
++    0.9135
++   ],
++   "H_vitals_minus_type": [
++    0.8065,
++    0.75,
++    0.9
++   ],
++   "H_supported": true,
++   "S_full_minus_level": [
++    0.0,
++    0.0,
++    0.0
++   ],
++   "S_full_minus_shape": [
++    0.0,
++    0.0,
++    0.0
++   ],
++   "S_equal_fpr_monitorable_caught": {
++    "full": 86,
++    "level": 86,
++    "shape": 86,
++    "length": 9,
++    "type": 12
++   },
++   "S_frozen_derivation_threshold": {
++    "threshold": -5.607557229734349,
++    "caught": 86,
++    "fpr": 0.0986
++   },
++   "S_per_checkpoint_auroc": {
++    "48": {
++     "episodes": 561,
++     "wrong": 86,
++     "auroc_with_ci": {
++      "vitals": [
++       1.0,
++       1.0,
++       1.0
++      ],
++      "type": [
++       0.489,
++       0.42,
++       0.5493
++      ]
++     }
++    },
++    "96": {
++     "episodes": 509,
++     "wrong": 81,
++     "auroc_with_ci": {
++      "vitals": [
++       1.0,
++       1.0,
++       1.0
++      ],
++      "type": [
++       0.4948,
++       0.4309,
++       0.561
++      ]
++     }
++    },
++    "192": {
++     "episodes": 395,
++     "wrong": 59,
++     "auroc_with_ci": {
++      "vitals": [
++       1.0,
++       1.0,
++       1.0
++      ],
++      "type": [
++       0.5295,
++       0.4515,
++       0.6058
++      ]
++     }
++    },
++    "384": {
++     "episodes": 176,
++     "wrong": 24,
++     "auroc_with_ci": {
++      "vitals": [
++       1.0,
++       1.0,
++       1.0
++      ],
++      "type": [
++       0.5496,
++       0.4271,
++       0.6579
++      ]
++     }
++    }
++   }
++  }
++ },
++ "dry_run": true
++}
+\ No newline at end of file
+diff --git a/algorithms/YB-0055-chip-visible-vitals/src/analysis.py b/algorithms/YB-0055-chip-visible-vitals/src/analysis.py
+new file mode 100644
+index 0000000..3b28db7
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/src/analysis.py
+@@ -0,0 +1,60 @@
++# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
++# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
++# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
++'''YB-0055 pre-registered analysis (see docs/PREREGISTRATION.md). analyse() is shared by the real run, the dry run and the smoke test.'''
++import time
++from vitals_tier0 import (T, COST, CAP, GROUPS, Vitals, make_jobs, features, checkpoints, in_time, evaluate, boot_diff,
++                          cap_threshold, cap_alarm, auroc, boot_auc)
++
++LAMS = (1.0, 10.0, 100.0)
++FOLDS = 5
++
++def wrong_of(r): return 0 if r['correct'] else 1
++
++def cv_oof(R, lam, group='full'):
++    '''Out-of-fold scores on derivation rows, folds grouped by episode (idx mod FOLDS), returned as {(idx, t): score} and mean AUROC.'''
++    jobs = make_jobs(R); oof = {}
++    for k in range(FOLDS):
++        tr = [j for j in jobs if j[0]['idx'] % FOLDS != k]; te = [j for j in jobs if j[0]['idx'] % FOLDS == k]
++        m = Vitals(group, lam).fit(tr)
++        for r, t, f, _ in te: oof[(r['idx'], t)] = m.score(f, t)
++    y = [j[3] for j in jobs]; return oof, auroc(y, [oof[(j[0]['idx'], j[1])] for j in jobs])
++
++def analyse(deriv, tests, boots=1000, log=print):
++    '''deriv: list of episodes. tests: {name: list of episodes}; the first is the primary test set. Returns the results dict.'''
++    t0 = time.time(); Rd = [r for r in deriv if r['answered']]
++    cvs = {lam: cv_oof(Rd, lam) for lam in LAMS}; lam = max(LAMS, key=lambda l: (cvs[l][1], -l)); oof = cvs[lam][0]
++    log('lambda %s cv auroc %s (%.0fs)' % (lam, {l: round(v[1], 4) for l, v in cvs.items()}, time.time() - t0))
++    jobs = make_jobs(Rd); models = {g: Vitals(g, lam).fit(jobs) for g in GROUPS}
++    rate = {}
++    for r in Rd: rate.setdefault(r['cat'], []).append(wrong_of(r))
++    rate = {c: sum(v) / len(v) for c, v in rate.items()}
++    # frozen deployment threshold: the 10 percent cap on derivation correct episodes, scored out of fold
++    Vd = in_time(Rd, lambda r, t: oof[(r['idx'], t)], lambda r, t: COST)
++    frozen = cap_threshold([v for v, r in zip(Vd, Rd) if r['correct']])
++    res = dict(lam=lam, lam_cv_auroc={str(l): round(v[1], 4) for l, v in cvs.items()}, derivation_answered=len(Rd), derivation_rows=len(jobs),
++               derivation_wrong=sum(wrong_of(r) for r in Rd), weights_full=dict(zip(list(GROUPS['full']) + ['int%d' % t for t in T], [round(w, 4) for w in models['full'].w])),
++               power='not recorded in the analysed fields; not testable here (a descriptive check, not this result)', tests={})
++    for name, R in tests.items():
++        A = [r for r in R if r['answered']]; y = [wrong_of(r) for r in A]; mon = [len(checkpoints(r)) > 0 for r in A]
++        V = {g: in_time(A, lambda r, t, m=models[g]: m.score(features(r['latency'], t), t), lambda r, t: COST) for g in GROUPS}
++        V['length'] = in_time(A, lambda r, t: float(t), lambda r, t: 0.0); V['type'] = in_time(A, lambda r, t: rate.get(r['cat'], 0.0), lambda r, t: 0.0)
++        per = {m: {k: (round(v, 4) if isinstance(v, float) else v) for k, v in evaluate(vv, y, mon).items()} for m, vv in V.items()}
++        out = dict(answered=len(A), wrong=sum(y), monitorable=sum(mon), short_correct_included=sum(1 for m, yy in zip(mon, y) if not m and yy == 0), monitors=per)
++        out['H_vitals_minus_length'] = boot_diff(V['full'], V['length'], y, boots); out['H_vitals_minus_type'] = boot_diff(V['full'], V['type'], y, boots)
++        out['H_supported'] = bool(out['H_vitals_minus_length'][1] > 0 and out['H_vitals_minus_type'][1] > 0)
++        out['S_full_minus_level'] = boot_diff(V['full'], V['level'], y, boots); out['S_full_minus_shape'] = boot_diff(V['full'], V['shape'], y, boots)
++        mon_idx = [i for i, m in enumerate(mon) if m]; mony = [y[i] for i in mon_idx]
++        out['S_equal_fpr_monitorable_caught'] = {m: sum(1 for f, yy in zip(cap_alarm([vv[i] for i in mon_idx], mony, CAP, seed=0), mony)
++                                                            if f and yy == 1) for m, vv in V.items()}
++        f = [v > frozen for v in V['full']]
++        out['S_frozen_derivation_threshold'] = dict(threshold=frozen, caught=sum(1 for a, yy in zip(f, y) if a and yy), fpr=round(sum(1 for a, yy in zip(f, y) if a and not yy) / max(1, y.count(0)), 4))
++        pc = {}
++        for t in T:
++            idx = [i for i, r in enumerate(A) if t in checkpoints(r)]; yt = [y[i] for i in idx]
++            if len(idx) < 20 or sum(yt) < 3: continue
++            pc[str(t)] = dict(episodes=len(idx), wrong=sum(yt), auroc_with_ci=dict(
++                vitals=boot_auc(yt, [models['full'].score(features(A[i]['latency'], t), t) for i in idx]), type=boot_auc(yt, [rate.get(A[i]['cat'], 0.0) for i in idx])))
++        out['S_per_checkpoint_auroc'] = pc; res['tests'][name] = out
++        log('%s: wrong %d, vitals caught %d, length %d, type %d, H_supported %s (%.0fs)' % (name, sum(y), per['full']['caught'], per['length']['caught'], per['type']['caught'], out['H_supported'], time.time() - t0))
++    return res
+diff --git a/algorithms/YB-0055-chip-visible-vitals/src/recordings.py b/algorithms/YB-0055-chip-visible-vitals/src/recordings.py
+new file mode 100644
+index 0000000..241ea33
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/src/recordings.py
+@@ -0,0 +1,34 @@
++# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
++# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
++# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
++'''Loads the existing recordings (seed<N>_LH.jsonl.gz). Reads the file from the checkout when it is
++materialised, otherwise from the committed tree with `git show HEAD:<path>` (the checkout may hide large
++data with skip-worktree). Every recording is then projected to the tier-0 fields the analysis is allowed to
++use (vitals_tier0.project): the observable stream (CHIP_FIELDS) plus the scoring fields (SCORING_FIELDS) used
++only to score and to build the controls. Everything else (text, entropy, p_top1, margin, toks, final, truth)
++is dropped here, at the load boundary, so no secret field ever reaches a feature.'''
++import gzip, io, json, os, subprocess
++from vitals_tier0 import project
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
++# HOME is the seed-to-directory map. Note that seeds 15-26 are the YB-0050 recordings and 27-38 the YB-0051
++# recordings: none is fresh across the chip program; "fresh" here means held out from YB-0055's model selection.
++HOME = {s: 'YB-0042-probe-baseline' for s in (2, 3, 4, 8)}
++HOME.update({s: 'YB-0045-powered-replication' for s in (5, 6, 7, 9, 10, 11, 12, 13, 14)})
++HOME.update({s: 'YB-0050-powered-decider' for s in range(15, 27)})
++HOME.update({s: 'YB-0051-low-false-alarm-precision' for s in range(27, 39)})
++
++def rel(seed): return 'algorithms/%s/data/seed%d_LH.jsonl.gz' % (HOME[seed], seed)
++
++def raw_bytes(seed):
++    p = os.path.join(ROOT, rel(seed))
++    if os.path.exists(p):
++        return open(p, 'rb').read()
++    return subprocess.run(['git', '-C', ROOT, 'show', 'HEAD:' + rel(seed)], check=True, capture_output=True).stdout
++
++def load_seed(seed, off=None):
++    '''Load one recording, projected to the tier-0 fields the analysis is allowed to use (vitals_tier0.project):
++    the observable stream plus the scoring fields, with every other field dropped at the load boundary.'''
++    off = 100000 * seed if off is None else off
++    rows = map(json.loads, io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw_bytes(seed)))))
++    return [project(dict(r, idx=off + r['idx'], seed=seed)) for r in rows]
+diff --git a/algorithms/YB-0055-chip-visible-vitals/src/vitals_tier0.py b/algorithms/YB-0055-chip-visible-vitals/src/vitals_tier0.py
+new file mode 100644
+index 0000000..c185e44
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/src/vitals_tier0.py
+@@ -0,0 +1,193 @@
++# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
++# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
++# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
++'''YB-0055: a regulator restricted to tier-0 signals (what a rack-tier governor reads with no host cooperation).
++Standard library only. Statistics follow YB-0035 corrected.py (in-time max, 10 percent cap, threshold-resampling bootstrap);
++the 10 percent cap is tie-aware: cap_alarm splits the tie at the threshold by a per-episode draw so a control whose score
++takes few distinct values (length, question type) is not forced to zero catches.
++
++Tier-0 view of an episode: the per-token arrival latencies (token rate, per-token latency, elapsed time) and the token count
++(bytes are a function of the token count at this tier). Board power is part of the tier but is not recorded in the analysed
++fields, so it is reported as not testable here (whether it is null in the corpus is a descriptive check, not this result).
++Cycles are not recorded; wall time is the proxy. Everything else in a recording
++(text, entropy, p_top1, margin, toks, final, truth, correct) is dropped by project, at the load boundary in
++src/recordings.load_seed, and never reaches a feature.'''
++import math, random
++
++T = (48, 96, 192, 384)
++CAP, COST = 0.10, 0.005
++CHIP_FIELDS = ('idx', 'seed', 'latency', 'power')            # the observable stream
++SCORING_FIELDS = ('answered', 'correct', 'final_start', 'cat')  # used only to score and to build the controls, never as features
++ALLOWED = CHIP_FIELDS + SCORING_FIELDS                        # the fields that may enter the analysis
++FEATURES = ('log_ttft', 'mean_log_lat', 'sd_log_lat', 'recent_vs_mean', 'slope', 'stall_frac', 'max_vs_median', 'log_elapsed')
++GROUPS = {'full': FEATURES, 'level': ('log_ttft', 'mean_log_lat', 'sd_log_lat', 'log_elapsed'),
++          'shape': ('recent_vs_mean', 'slope', 'stall_frac', 'max_vs_median')}
++
++def chip_view(r):
++    '''The tier-0 observable of an episode: only the keys in CHIP_FIELDS.'''
++    return {k: r.get(k) for k in CHIP_FIELDS}
++
++def project(r):
++    '''The tier-0 fields a recording carries into the analysis: the observable stream (CHIP_FIELDS) plus
++    the scoring fields (SCORING_FIELDS) used only to score and to build the controls. Everything else in
++    the recording (text, entropy, p_top1, margin, toks, final, truth) is dropped here, at the load
++    boundary, so it never reaches a feature. This is the enforcement behind the "tier-0 only" claim;
++    src/recordings.load_seed projects every recording through it.'''
++    return {k: r.get(k) for k in ALLOWED}
++
++def checkpoints(r): return [t for t in T if t < r['final_start']]
++
++def features(lat, t):
++    '''Features at checkpoint t from lat[:t] only (no future information).'''
++    x = lat[:t]; dec = x[1:]; lg = [math.log(max(v, 1e-4)) for v in dec]; n = len(lg)
++    mean = sum(lg) / n; sd = math.sqrt(sum((v - mean) ** 2 for v in lg) / n)
++    med = sorted(dec)[n // 2]; rec = dec[-16:]
++    mi = (n - 1) / 2; den = sum((i - mi) ** 2 for i in range(n)) or 1.0
++    slope = sum((i - mi) * (v - mean) for i, v in enumerate(lg)) / den * t          # change in log latency over the prefix
++    return dict(log_ttft=math.log(max(x[0], 1e-4)), mean_log_lat=mean, sd_log_lat=sd,
++                recent_vs_mean=math.log(max(sum(rec) / len(rec), 1e-4)) - math.log(max(sum(dec) / n, 1e-4)), slope=slope,
++                stall_frac=sum(1 for v in dec if v > 1.5 * med) / n, max_vs_median=math.log(max(max(dec), 1e-4) / max(med, 1e-4)),
++                log_elapsed=math.log(max(sum(x), 1e-4)))
++
++# ---- logistic regression (ridge, Newton) ----
++def solve(A, b):
++    n = len(b); M = [row[:] + [b[i]] for i, row in enumerate(A)]
++    for c in range(n):
++        p = max(range(c, n), key=lambda i: abs(M[i][c])); M[c], M[p] = M[p], M[c]
++        for i in range(c + 1, n):
++            f = M[i][c] / M[c][c]
++            for j in range(c, n + 1): M[i][j] -= f * M[c][j]
++    x = [0.0] * n
++    for i in range(n - 1, -1, -1): x[i] = (M[i][n] - sum(M[i][j] * x[j] for j in range(i + 1, n))) / M[i][i]
++    return x
++
++def fit_logistic(X, y, lam, iters=12):
++    d = len(X[0]); w = [0.0] * d
++    for _ in range(iters):
++        g = [lam * w[j] if j < d - len(T) else 0.0 for j in range(d)]; H = [[0.0] * d for _ in range(d)]
++        for j in range(d - len(T)): H[j][j] += lam
++        for xi, yi in zip(X, y):
++            z = sum(a * b for a, b in zip(w, xi)); p = 1 / (1 + math.exp(-max(-30.0, min(30.0, z)))); s = p * (1 - p) + 1e-6
++            for j in range(d):
++                if xi[j] == 0.0: continue
++                g[j] += (p - yi) * xi[j]; sj = s * xi[j]; Hj = H[j]
++                for k in range(j, d): Hj[k] += sj * xi[k]
++        for j in range(d):
++            for k in range(j): H[j][k] = H[k][j]
++        step = solve(H, g); w = [a - b for a, b in zip(w, step)]
++        if max(abs(v) for v in step) < 1e-6: break
++    return w
++
++class Vitals:
++    '''Pooled ridge logistic over checkpoints; features standardised per checkpoint on the training rows; one intercept per checkpoint.'''
++    def __init__(self, group='full', lam=10.0): self.names, self.lam = GROUPS[group], lam
++    def row(self, f, t): return [(f[n] - self.mu[t][n]) / self.sd[t][n] for n in self.names] + [1.0 if t == u else 0.0 for u in T]
++    def fit(self, jobs):
++        '''jobs: list of (episode, t, feature-dict, wrong).'''
++        self.mu, self.sd = {}, {}
++        for t in T:
++            F = [f for _, tt, f, _ in jobs if tt == t]; self.mu[t], self.sd[t] = {}, {}
++            for n in self.names:
++                v = [f[n] for f in F] or [0.0]; m = sum(v) / len(v); s = math.sqrt(sum((a - m) ** 2 for a in v) / len(v))
++                self.mu[t][n], self.sd[t][n] = m, s if s > 1e-9 else 1.0
++        self.w = fit_logistic([self.row(f, t) for _, t, f, _ in jobs], [yy for *_, yy in jobs], self.lam); return self
++    def score(self, f, t): return sum(a * b for a, b in zip(self.w, self.row(f, t)))
++
++def make_jobs(R):
++    return [(r, t, features(r['latency'], t), 0 if r['correct'] else 1) for r in R if r['answered'] for t in checkpoints(r)]
++
++# ---- statistics (YB-0035 corrected.py, stdlib) ----
++def in_time_max(checks):
++    v = [s for s, t, c, d in checks if t + c <= d]; return max(v) if v else -math.inf
++
++def cap_threshold(v_correct, cap=CAP):
++    '''Smallest threshold with at most cap of correct episodes scoring above it.'''
++    s = sorted(v_correct, reverse=True); n = len(s); k = int(math.floor(cap * n + 1e-12))
++    return s[k] if k < n else -math.inf
++
++def cap_alarm(V, y, cap=CAP, seed=None):
++    '''Alarm the top-`cap` fraction of the correct (y==0) episodes by score, with the tie at the
++    threshold split by a per-episode draw. A control whose score takes few distinct values (the length
++    and question-type baselines) would otherwise catch 0 by construction: with a strict
++    '> cap_threshold' the threshold lands on a value that more than the cap fraction of the correct
++    share, so nothing scores above it. Splitting the tie (reproducibly, by seed) lets the control
++    reach the cap without exceeding it. The false-alarm rate is then floor(cap*n)/n, which is <= cap.
++    seed=None breaks ties by index (the deterministic point estimate); a fresh seed is used per
++    bootstrap resample.'''
++    n = len(V); f = [False] * n
++    neg = [i for i, yy in enumerate(y) if yy == 0]
++    if not neg: return f
++    thr = cap_threshold([V[i] for i in neg], cap)
++    g = None if seed is None else random.Random(seed)
++    keys = [i if g is None else g.random() for i in range(n)]
++    over = [i for i in neg if V[i] > thr]
++    tied = [i for i in neg if V[i] == thr]
++    budget = int(math.floor(cap * len(neg) + 1e-12)) - len(over)
++    if budget > 0 and tied:
++        cut = max(sorted((keys[i] for i in tied))[:budget])
++        for i in range(n):
++            if V[i] > thr or (V[i] == thr and keys[i] <= cut): f[i] = True
++    else:
++        for i in range(n):
++            if V[i] > thr: f[i] = True
++    return f
++
++def in_time(R, fn, cost):
++    V = []
++    for r in R:
++        lat = r['latency']; D = sum(lat[:r['final_start']]); acc = 0.0; checks = []; last = 0
++        for t in checkpoints(r):
++            acc += sum(lat[last:t]); last = t; checks.append((fn(r, t), acc, cost(r, t), D))
++        V.append(in_time_max(checks))
++    return V
++
++def evaluate(V, y, mon):
++    thr = cap_threshold([v for v, yy in zip(V, y) if yy == 0]); f = cap_alarm(V, y, CAP, seed=0)
++    w = [i for i, yy in enumerate(y) if yy == 1]; c = [i for i, yy in enumerate(y) if yy == 0]
++    mc = [i for i in c if mon[i]]
++    return dict(threshold=thr, caught=sum(f[i] for i in w), wrong=len(w), recall=sum(f[i] for i in w) / len(w) if w else None,
++                fpr=sum(f[i] for i in c) / len(c), fpr_monitorable=sum(f[i] for i in mc) / len(mc) if mc else None,
++                recall_monitorable=(lambda mw: sum(f[i] for i in mw) / len(mw) if mw else None)([i for i in w if mon[i]]))
++
++def recall_at_cap(V, y, seed=0):
++    f = cap_alarm(V, y, CAP, seed=seed); w = [i for i, yy in enumerate(y) if yy == 1]
++    return sum(f[i] for i in w) / len(w) if w else None
++
++def boot_diff(Va, Vb, y, n=1000, seed=0):
++    '''Resample all episodes, reset both thresholds on each resample's correct episodes, recall difference on its wrong ones.'''
++    g = random.Random(seed); N = len(y); d = []
++    for _ in range(n):
++        i = [g.randrange(N) for _ in range(N)]; yy = [y[k] for k in i]
++        if sum(yy) == 0 or sum(yy) == N: continue
++        s = g.getrandbits(32)
++        d.append(recall_at_cap([Va[k] for k in i], yy, seed=s) - recall_at_cap([Vb[k] for k in i], yy, seed=s))
++    d.sort(); q = lambda p: d[min(len(d) - 1, max(0, int(p * len(d))))]
++    return [round(recall_at_cap(Va, y) - recall_at_cap(Vb, y), 4), round(q(0.025), 4), round(q(0.975), 4)]
++
++def auroc(y, s):
++    pos = [v for v, yy in zip(s, y) if yy == 1]; neg = [v for v, yy in zip(s, y) if yy == 0]
++    if not pos or not neg: return None
++    order = sorted(range(len(s)), key=lambda i: s[i]); rk = [0.0] * len(s); i = 0
++    while i < len(order):
++        j = i
++        while j + 1 < len(order) and s[order[j + 1]] == s[order[i]]: j += 1
++        for k in range(i, j + 1): rk[order[k]] = (i + j) / 2 + 1
++        i = j + 1
++    return (sum(rk[k] for k in range(len(s)) if y[k] == 1) - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg))
++
++def boot_auc(y, s, n=500, seed=0):
++    g = random.Random(seed); N = len(y); a = []
++    for _ in range(n):
++        i = [g.randrange(N) for _ in range(N)]; v = auroc([y[k] for k in i], [s[k] for k in i])
++        if v is not None: a.append(v)
++    a.sort(); return [round(auroc(y, s), 4), round(a[int(0.025 * len(a))], 4), round(a[min(len(a) - 1, int(0.975 * len(a)))], 4)]
++
++def synth(n, seed, wrong_rate=0.12):
++    '''Synthetic recordings for the smoke test and the dry run: wrong answers drift slower and stall more.'''
++    g = random.Random(seed); R = []
++    for i in range(n):
++        wrong = g.random() < wrong_rate; fs = g.randrange(20, 520); nt = fs + 20; base = 0.011 * (1.15 if wrong else 1.0)
++        lat = [0.15] + [base * math.exp(g.gauss(0, 0.05 + (0.15 if wrong else 0.0))) * (3 if g.random() < (0.12 if wrong else 0.04) else 1) for _ in range(nt - 1)]
++        R.append(dict(idx=seed * 100000 + i, seed=seed, cat=['mul_hard', 'weekday', 'modpow'][i % 3], answered=True, correct=not wrong,
++                      final_start=fs, n_tokens=nt, latency=lat, power=None))
++    return R
+diff --git a/algorithms/YB-0055-chip-visible-vitals/tests/inspect_seeds.py b/algorithms/YB-0055-chip-visible-vitals/tests/inspect_seeds.py
+new file mode 100644
+index 0000000..f22f847
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/tests/inspect_seeds.py
+@@ -0,0 +1,15 @@
++'''Descriptive look at the recordings before pre-registration: no model, no score, no threshold. It prints
++wrong-answer counts and available fields for whatever seeds are passed, which may include the test seeds;
++that is a descriptive peek at the labels, not a score and not a pre-registered number. The design
++(PREREGISTRATION.md) does not depend on these counts; it states only that the single primary seed is
++underpowered and the pooled secondary is the informative check.'''
++import sys, os
++sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
++from recordings import load_seed
++for s in [int(a) for a in sys.argv[1:]]:
++    L = load_seed(s); a = [r for r in L if r['answered']]
++    print(s, len(L), sorted(L[0].keys()) if s == int(sys.argv[1]) else '')
++    print(' answered', len(a), 'wrong', sum(not r['correct'] for r in a), 'power nonnull', sum(r.get('power') is not None for r in L),
++          'final_start>48', sum(r['final_start'] > 48 for r in a), 'cats', sorted(set(r['cat'] for r in L)))
++    p = [r['power'] for r in L if r.get('power') is not None]
++    if p: print(' power sample', str(p[0])[:200])
+diff --git a/algorithms/YB-0055-chip-visible-vitals/tests/test_core.py b/algorithms/YB-0055-chip-visible-vitals/tests/test_core.py
+new file mode 100644
+index 0000000..518fc32
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/tests/test_core.py
+@@ -0,0 +1,59 @@
++import math, os, sys
++sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
++import vitals_tier0 as V
++
++def test_cap_threshold_respects_cap():
++    for n in (7, 20, 55, 100):
++        v = [math.sin(i) for i in range(n)]; thr = V.cap_threshold(v)
++        assert sum(x > thr for x in v) <= 0.10 * n + 1e-9
++
++def test_cap_threshold_ties():
++    v = [1.0] * 10 + [0.0] * 10; assert sum(x > V.cap_threshold(v) for x in v) <= 2
++
++def test_features_use_prefix_only():
++    r = V.synth(5, 3)[0]; a = V.features(r['latency'], 48); b = V.features(r['latency'][:48] + [5.0] * 100, 48)
++    assert a == b
++
++def test_chip_view_drops_content():
++    r = dict(V.synth(1, 1)[0], text='secret', entropy=[0.1], final='x', truth='y')
++    assert set(V.chip_view(r)) == set(V.CHIP_FIELDS)
++
++def test_auroc_known():
++    assert V.auroc([0, 0, 1, 1], [0.1, 0.2, 0.3, 0.4]) == 1.0 and V.auroc([0, 1], [0.5, 0.5]) == 0.5
++
++def test_logistic_learns_signal():
++    R = V.synth(600, 7, 0.2); m = V.Vitals('full', 10.0).fit(V.make_jobs(R))
++    jobs = V.make_jobs(V.synth(400, 8, 0.2)); a = V.auroc([j[3] for j in jobs], [m.score(j[2], j[1]) for j in jobs])
++    assert a > 0.7
++
++def test_in_time_excludes_late_checks():
++    assert V.in_time_max([(5.0, 10.0, 1.0, 10.5)]) == -math.inf and V.in_time_max([(5.0, 1.0, 1.0, 10.5)]) == 5.0
++
++def test_cap_alarm_respects_cap():
++    # the tie-aware alarm's false-alarm rate is floor(cap*n)/n, which is at most the cap, for every seed
++    for n in (7, 20, 55, 100, 123):
++        nc = n - n // 10
++        y = [0] * nc + [1] * (n - nc)
++        for seed in (0, 1, 2, 17):
++            f = V.cap_alarm([float((i * 37) % 7) for i in range(n)], y, seed=seed)
++            assert sum(f[i] for i in range(nc)) <= 0.10 * nc + 1e-9
++
++def test_tied_control_reaches_cap():
++    # the length and question-type baselines take few distinct values; under a strict '> cap_threshold'
++    # they catch 0 when more than the cap fraction of the correct tie at the top value. cap_alarm splits
++    # that tie, so the control reaches the cap (FPR exactly the cap) instead of being handicapped to 0.
++    y = [0] * 90 + [1] * 10
++    scores = [3] * 100                          # every episode reaches the top checkpoint
++    assert sum(1 for s in scores[90:] if s > V.cap_threshold(scores[:90])) == 0      # strict control: handicapped
++    for seed in range(8):
++        assert sum(V.cap_alarm(scores, y, seed=seed)[i] for i in range(90)) == 9     # FPR reaches the cap
++    assert sum(sum(V.cap_alarm(scores, y, seed=s)[i] for i in range(90, 100)) for s in range(8)) > 0
++
++def test_project_drops_content():
++    # the load boundary projects to the tier-0 fields; the content fields never reach a feature
++    r = dict(V.synth(1, 1)[0], text='secret', entropy=[0.1], p_top1=0.9, margin=0.2, toks=[1], final='x', truth='y')
++    p = V.project(r)
++    for k in ('text', 'entropy', 'p_top1', 'margin', 'toks', 'final', 'truth'):
++        assert k not in p
++    assert set(p) <= set(V.CHIP_FIELDS + V.SCORING_FIELDS)
++    assert p['latency'] is not None and p['correct'] is not None

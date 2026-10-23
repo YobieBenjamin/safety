@@ -1,0 +1,5 @@
+...............................................                          [100%]
+47 passed in 1.92s
+independent: best single model_refusal miss 0.350, best quorum 3-of-4 miss 0.083, mean phi -0.009, quorum_helps=True
+common_cause: best single model_refusal miss 0.413, best quorum 2-of-4 miss 0.350, mean phi 0.738, quorum_helps=False
+smoke ok

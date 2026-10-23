@@ -1,0 +1,25 @@
+{
+ "id": "YB-0055",
+ "branch": "exp/yb-0055",
+ "base": "main",
+ "head": "f1654cb",
+ "commits": 3,
+ "agent_trailers": 3,
+ "files": 9,
+ "added": 703,
+ "removed": 0,
+ "ok": true,
+ "findings": [],
+ "runs": {
+  "suite": {
+   "command": "python3 -m pytest -x observer/tests",
+   "exit": 0,
+   "tail": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0\nrootdir: /private/var/folders/30/33qb062d34q5p1j5tycqcyww0000gn/T/verify-g9nhoqiw/observer\nconfigfile: pyproject.toml\ncollected 33 items\n\nobserver/tests/test_contract.py .......                                  [ 21%]\nobserver/tests/test_signals.py ..........................                [100%]\n\n============================== 33 passed in 0.04s ==============================\n"
+  },
+  "acceptance": {
+   "command": "python3 -m pytest -q observer/tests && python3 agr/bench/tier0_vitals.py --smoke",
+   "exit": 0,
+   "tail": ".................................                                        [100%]\n33 passed in 0.03s\n{\"smoke\": \"ok\", \"vitals_caught\": 20, \"length_caught\": 3, \"wrong\": 20, \"fpr_full\": 0.1}\n"
+  }
+ }
+}
