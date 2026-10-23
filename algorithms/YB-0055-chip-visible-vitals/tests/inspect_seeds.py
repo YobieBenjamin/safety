@@ -1,4 +1,8 @@
-'''Descriptive look at the recordings before pre-registration: no model, no score. Prints counts and available fields only.'''
+'''Descriptive look at the recordings before pre-registration: no model, no score, no threshold. It prints
+wrong-answer counts and available fields for whatever seeds are passed, which may include the test seeds;
+that is a descriptive peek at the labels, not a score and not a pre-registered number. The design
+(PREREGISTRATION.md) does not depend on these counts; it states only that the single primary seed is
+underpowered and the pooled secondary is the informative check.'''
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from recordings import load_seed
