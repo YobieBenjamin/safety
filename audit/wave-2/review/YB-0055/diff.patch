@@ -91,6 +91,34 @@ index 0000000..5b12883
 +    elif '--dry' in a: dry()
 +    elif '--run' in a: run()
 +    else: sys.exit(__doc__)
+diff --git a/algorithms/YB-0055-chip-visible-vitals/Makefile b/algorithms/YB-0055-chip-visible-vitals/Makefile
+new file mode 100644
+index 0000000..d82f090
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/Makefile
+@@ -0,0 +1,22 @@
++# Copyright (c) 2026 Yobie Benjamin. Autonomic Graph Regulation (AGR). All rights reserved except as licensed.
++# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0  (see LICENSE.md, NOTICE)
++# Provenance canary: AGR-CANARY-7f3c2a9e-5b14-4d6e-9a1f-2c8e0b6d4a71
++# YB-0055 is standard library only (no C core, no numpy), so there is no build step.
++# test:       compile everything, run the unit tests with plain python3 (CI installs no pytest).
++# experiment: what CI runs when this folder changes: the full pipeline on SYNTHETIC data (--dry, about 10 s),
++#             with docs/dryrun.json put back afterwards so the committed record is never rewritten by a check.
++#             The real pre-registered run (--run) touches the recordings, refuses to run twice and is a local step;
++#             it is deliberately not a target here, so no check can spend it by accident.
++.PHONY: all test experiment smoke clean
++ROOT := ../..
++all: test experiment
++test:
++	python3 -m py_compile src/*.py tests/*.py $(ROOT)/agr/bench/tier0_vitals.py
++	python3 tests/run_plain.py
++experiment: test
++	@cp docs/dryrun.json docs/.dryrun.keep
++	@cd $(ROOT) && python3 agr/bench/tier0_vitals.py --dry; s=$$?; mv algorithms/YB-0055-chip-visible-vitals/docs/.dryrun.keep algorithms/YB-0055-chip-visible-vitals/docs/dryrun.json; exit $$s
++smoke:
++	cd $(ROOT) && python3 agr/bench/tier0_vitals.py --smoke   # needs pytest (local venv), not run in CI
++clean:
++	rm -rf src/__pycache__ tests/__pycache__ docs/.dryrun.keep
 diff --git a/algorithms/YB-0055-chip-visible-vitals/README.md b/algorithms/YB-0055-chip-visible-vitals/README.md
 new file mode 100644
 index 0000000..f67b487
@@ -691,6 +719,28 @@ index 0000000..f22f847
 +          'final_start>48', sum(r['final_start'] > 48 for r in a), 'cats', sorted(set(r['cat'] for r in L)))
 +    p = [r['power'] for r in L if r.get('power') is not None]
 +    if p: print(' power sample', str(p[0])[:200])
+diff --git a/algorithms/YB-0055-chip-visible-vitals/tests/run_plain.py b/algorithms/YB-0055-chip-visible-vitals/tests/run_plain.py
+new file mode 100644
+index 0000000..c0990c7
+--- /dev/null
++++ b/algorithms/YB-0055-chip-visible-vitals/tests/run_plain.py
+@@ -0,0 +1,16 @@
++'''Runs every test_* function in tests/test_*.py with plain python3, so CI needs no pytest (the CI image installs
++numpy, scikit-learn and requests only). Fails if a test fails or if no test was found, so it can never pass empty.'''
++import glob, importlib.util, os, sys, traceback
++here = os.path.dirname(os.path.abspath(__file__))
++ran, bad = 0, 0
++for path in sorted(glob.glob(os.path.join(here, 'test_*.py'))):
++    spec = importlib.util.spec_from_file_location(os.path.basename(path)[:-3], path)
++    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
++    for name in sorted(n for n in dir(mod) if n.startswith('test_') and callable(getattr(mod, n))):
++        ran += 1
++        try:
++            getattr(mod, name)(); print('PASS', name)
++        except Exception:
++            bad += 1; print('FAIL', name); traceback.print_exc()
++print('%d/%d tests passed' % (ran - bad, ran))
++sys.exit(1 if bad or not ran else 0)
 diff --git a/algorithms/YB-0055-chip-visible-vitals/tests/test_core.py b/algorithms/YB-0055-chip-visible-vitals/tests/test_core.py
 new file mode 100644
 index 0000000..518fc32

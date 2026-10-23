@@ -22,6 +22,8 @@ When I picked this up, `project`, `cap_alarm` and the updated tests and docs wer
 - **The "acceptance.log shows a pass" claim.** That was the launcher's log of the earlier tree, which called an undefined `project`. It was stale, and I can't explain it further.
 
 ## Commit messages
+- YB-0055: Makefile with test and experiment targets so CI's make verify reaches it; plain-python test runner (CI has no pytest)
+
 - YB-0055 (#4): project() at the load boundary, tie-aware 10 percent cap, unit tests inside the smoke, honest status
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 Agent: wave 2, issue #4 (revision 2)
