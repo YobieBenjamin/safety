@@ -34,7 +34,7 @@ V = _load('vitals_tier0', 'src/vitals_tier0.py')
 analyse = _load('analysis', 'src/analysis.py').analyse
 
 DERIV = tuple(range(2, 15))                 # seeds recorded for YB-0033 to YB-0045
-PRIMARY = 38                                # fresh seed, tested once
+PRIMARY = 38                                # held out from this experiment's model selection (not fresh across the program: YB-0051 test seed), tested once
 SECONDARY = tuple(range(27, 38))            # powered check with the frozen model, reported separately
 
 def smoke():
@@ -56,6 +56,11 @@ def smoke():
     for m in s['monitors'].values():
         assert m['fpr'] <= V.CAP + 1e-9, m
     assert s['monitors']['full']['caught'] >= 0 and 'H_vitals_minus_length' in s
+    # 4. the experiment's own unit tests run as part of the smoke (the acceptance command otherwise never reaches them)
+    tp = os.path.join(EXP, 'tests', 'test_core.py')
+    if os.path.exists(tp):
+        import pytest
+        assert pytest.main(['-q', '-p', 'no:cacheprovider', tp]) == 0, 'tests/test_core.py failed'
     print(json.dumps(dict(smoke='ok', vitals_caught=s['monitors']['full']['caught'], length_caught=s['monitors']['length']['caught'],
                           wrong=s['wrong'], fpr_full=s['monitors']['full']['fpr'])))
 
